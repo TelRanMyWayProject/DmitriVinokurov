@@ -14,7 +14,7 @@
       <property name="suffix" value=".jsp" />
    </bean>
    <mvc:annotation-driven></mvc:annotation-driven>
-   <!-- Configure to plugin JSON as request and response in method handler -->
+   <!--Configure to plugin JSON as request and response in method handler -->
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="messageConverters">
             <list>
