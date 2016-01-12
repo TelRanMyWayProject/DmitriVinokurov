@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 public class Country {
@@ -43,6 +45,8 @@ public class Country {
 				CountryId=Integer.parseInt(property);
 		}
 	}	
+	
+	@JsonIgnore
 	public Map<String, Object> getProperties(){
 		Map<String, Object> res=new HashMap<String, Object>();
 		res.put(NAME, name);

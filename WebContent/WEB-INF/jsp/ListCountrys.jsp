@@ -1,60 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>"Your-way" service administration</title>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-<style>
-::-webkit-input-placeholder { /* WebKit browsers */
-    color:    blue;
-    opacity: 1;
-}
-:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color:    blue;
-    opacity: 1;
-}
-::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color:    blue;
-    opacity: 1;
-}
-:-ms-input-placeholder { /* Internet Explorer 10+ */
-    color:    blue;
-    opacity: 1;
-}
 
+
+<title>"Your-way" service administration</title>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<script src="<c:url value="/static/js/angular.min.js" />"></script>
+<link href="<c:url value='/static/css/bootstrap.min.css' />" rel="stylesheet"></link>
+<link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
+<style>
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 </style>
 </head>
 <body>
-<div data-ng-app="country_app" data-ng-controller="countrys_contr">
-<p>Filter by name: <input type="text" data-ng-model="search.name"></p>
-<table>
-	<tr>
+<div data-ng-app="country_app" data-ng-controller="countrys_contr" data-ng-cloak class="col-xs-90 form-group">
+<p style="max-width:15%;">Filter by name: <input type="text" data-ng-model="search.name" class="form-control input-sm"></p>
+<div class="col-xs-100 form-group">
+<table class="table table-hover table-condensed">
+	<colgroup>
+    <col class="col-xs-5"/>
+    <col class="col-xs-5"/>
+    <col class="col-xs-1"/>
+    <col class="col-xs-2"/>
+    <col class="col-xs-2"/>
+    </colgroup>
+	<thead>
+		<tr>
 		<th>name</th>
 		<th>link</th>
-		<th></th>
-		<th>Embassy</th>
+		<th>action</th>
+		<th>Embassies</th>
 		<th>Programs</th>
-	</tr>
+		</tr>
+	</thead>
+	<tbody>
 	<tr data-ng-repeat="cr in Countrys|filter:search">
-		<td><input type="text" name="name" placeholder="{{cr.name}}" class={{$index}}></td>
-		<td><input type="text" name="link" placeholder="{{cr.link}}" class={{$index}}></td>
-		<td><button data-ng-click=SendEditRequest($event) name="button" class={{$index}}>Edit</button></td>
+		<td><input type="text" name="name" value="{{cr.name}}" class='{{$index}} form-control input-sm'></td>
+		<td><input type="text" name="link" value="{{cr.link}}" class='{{$index}} form-control input-sm'></td>
+		<td><button data-ng-click=SendEditRequest($event) name="button" class='{{$index}}'>Edit</button></td>
 		<td><button data-ng-click=sendEmbassyRequest($event) name="button" class={{$index}}>Embassies</button></td>
 		<td><button data-ng-click=sendProgramsRequest($event) name="button" class={{$index}}>Programs</button></td>
 		<td><input type="hidden" name="countryId" value={{cr.countryId}} class={{$index}}></td>
 	</tr>
 	<tr>
-		<td><input type="text" class="adding" name="name"></td>
-		<td><input type="text" class="adding" name="link"></td>
-		<td><button data-ng-click=AddCountry() name="button">Add country</button></td>
+		<td><input type="text" class="adding form-control input-sm" name="name" placeholder="name"></td>
+		<td><input type="text" class="adding form-control input-sm" name="link" placeholder="link"></td>
+		<td><button data-ng-click=AddCountry() name="button">Add</button></td>
 	</tr>
+	</tbody>
 </table>
-<h3>{{msg}}</h3>
+</div>
 </div>
 <script>
 var appl=angular.module('country_app',[]);
 appl.controller('countrys_contr',function($scope,$http){
-	$scope.msg;
 	$scope.GetAllCountries=function(){
 		$http({
 			 	method: 'GET',
@@ -74,7 +75,7 @@ appl.controller('countrys_contr',function($scope,$http){
 				name : values.name.value,
 				link : values.link.value,
 		};
-		
+		if(values.name.value!=""){
 		$http({
 			method:'POST',
 			url:'/'+window.location.href.split('/')[3]+'/country',
@@ -83,14 +84,15 @@ appl.controller('countrys_contr',function($scope,$http){
 		}).success(function(response){
 			if(response.name!="Error"){
 				$scope.Countrys[index]=response;
-				$scope.msg="";
 			}else{
-				$scope.msg="Country with this name already exists";
+				alert("Country with this name already exists");
 			}
 			
 		}).error(function(response){
 				console.log(response);
 			});
+		}else
+			alert("enter the name");
 		for(i=0;i<values.length;i++){
 			if(values[i].name!="button"&&values[i].name!="countryId"){
 				values[i].value="";
@@ -106,6 +108,7 @@ appl.controller('countrys_contr',function($scope,$http){
 				link : values.link.value,
 				countryId: values.countryId.value
 		};
+		if(values.name.value!=""){
 		$http({
 			method:'POST',
 			url:'/'+window.location.href.split('/')[3]+'/country_edit',
@@ -120,19 +123,19 @@ appl.controller('countrys_contr',function($scope,$http){
 				}
 				$scope.Countrys[index].name=response.name;
 				$scope.Countrys[index].link=response.link;
-				$scope.msg="";
 			}else{
-				$scope.msg="Country with this name already exists";
+				values.name.value=$scope.Countrys[index].name;
+				values.link.value=$scope.Countrys[index].link;
+				alert("Country with this name already exists");
 			}
 			
 		}).error(function(response){
 				console.log(response);
-			});
-		for(i=0;i<values.length;i++){
-			if(values[i].name!="button"&&values[i].name!="countryId"){
-				values[i].value="";
+			});}else{
+				values.name.value=$scope.Countrys[index].name;
+				values.link.value=$scope.Countrys[index].link;
+				alert("enter the name");
 			}
-		}
 	}
 	
 	$scope.sendEmbassyRequest=function(event){

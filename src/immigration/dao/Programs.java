@@ -1,4 +1,4 @@
-package immigration.dao;
+package immigration.dao; 
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,13 +9,15 @@ import java.util.Map;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Programs {
 	public static final String NAME = "name";
 	public static final String LINK = "link";
 	public static final String DESCRIPTION = "description";
 	public static final String CATEGORY = "category";
-	public static final String ENABLED = "Enabled";
+	public static final String ENABLED = "enabled";
 	public static final String EXPIRATION = "expiration";
 	public static final String PROGRAMID = "ProgramId";
 	
@@ -23,13 +25,16 @@ public class Programs {
 	String link;
 	String description;
 	String category;
-	boolean Enabled;
+	boolean enabled;
 	Date expiration;
 	
+	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	int ProgramId;
 	
+	@JsonIgnore
 	@ManyToOne
 	Country country;
 	
@@ -49,11 +54,11 @@ public class Programs {
 			if(property != null&&property!="")
 				category=property;
 			property=properties.get(ENABLED);
-			if(property != null&&property!="")
-				Enabled=Boolean.parseBoolean(property);
+			if(property == "false"||property!="true")
+				enabled=Boolean.parseBoolean(property);
 			property=properties.get(EXPIRATION);
 			if(property != null&&property!=""){
-				SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 				try {
 					expiration = format.parse(property);
 				} catch (ParseException e) {
@@ -64,13 +69,14 @@ public class Programs {
 				ProgramId=Integer.parseInt(property);
 		}
 	}
+	@JsonIgnore
 	public Map<String, Object> getProperties(){
 		Map<String, Object> res=new HashMap<String, Object>();
 		res.put(NAME, name);
 		res.put(LINK, link);
 		res.put(DESCRIPTION, description);
 		res.put(CATEGORY, category);
-		res.put(ENABLED, Enabled);
+		res.put(ENABLED, enabled);
 		res.put(EXPIRATION, expiration);
 		res.put(PROGRAMID, ProgramId);
 		return res;
@@ -78,11 +84,11 @@ public class Programs {
 	
 	
 	
-	
+	@JsonIgnore
 	public Country getCountry() {
 		return country;
 	}
-
+	
 	public void setCountry(Country country) {
 		this.country = country;
 	}
@@ -101,22 +107,23 @@ public class Programs {
 	public Programs() {
 		super();
 	}
-
+	
+	@JsonIgnore
 	@Override
 	public String toString() {
 		String json=String.format("{\"name\":\"%s\",\"link\":\"%s\",\"description\":\"%s\",\"category\":\"%s\""
-				+ ",\"Enabled\":\"%s\",\"expiration\":\"%td/%tm/%tY\",\"ProgramId\":\"%d\"}", 
-				name,link,description,category,Enabled,expiration,expiration,expiration,ProgramId);
+				+ ",\"enabled\":\"%s\",\"expiration\":\"%td/%tm/%tY\",\"ProgramId\":\"%d\"}", 
+				name,link,description,category,enabled,expiration,expiration,expiration,ProgramId);
 		return json;
 	}
 	
 	
 	public boolean isEnabled() {
-		return Enabled;
+		return enabled;
 	}
 
 	public void setEnabled(boolean enabled) {
-		Enabled = enabled;
+		this.enabled = enabled;
 	}
 
 	public Date getExpiration() {
@@ -138,7 +145,8 @@ public class Programs {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
+	
 	public String getLink() {
 		return link;
 	}

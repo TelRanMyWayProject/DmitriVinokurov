@@ -1,0 +1,232 @@
+<%@ page language="java" contentType="text/html; charset=windows-1255" pageEncoding="windows-1255"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en" data-ng-app="ProgStepsApp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1255">
+<title>Program Steps</title>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
+<link href="<c:url value='/static/css/bootstrap.min.css' />" rel="stylesheet"></link>
+<link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
+
+<script>
+	angular.module('ProgStepsApp', [])
+	.constant("baseUrl","/YiminAdmin/")
+	.controller('ProgStepsCtrl', function($scope, $http) {
+		document.getElementById("viewnosteps").style.visibility = "hidden";
+		document.getElementById("viewstepadd").style.visibility = "hidden";
+		var jsonRes = JSON.parse('${result}');
+		$scope.prsteps = jsonRes.programsteps;
+		$scope.program = jsonRes.program;
+		$scope.itemedit = {};
+		if ($scope.prsteps.length == 0) {
+			$scope.prsteps = [];
+			document.getElementById("viewnosteps").style.visibility = "visible";
+		}
+
+		$scope.addStep = function() {
+ 			$http({
+				method:'POST',
+				url: "/ImigrationRestServer/stepsrest",
+				headers:{'Content-Type' :'application/x-www-form-urlencoded'}
+			}).success(function(responce) {
+				if (responce.length > 0) {
+					$scope.stepsadd = responce;
+					if ($scope.prsteps.length == $scope.stepsadd.length) {
+						// $scope.stepsadd = [];
+						document.getElementById("viewstepadd").style.visibility = "hidden";
+					}
+					else {
+						document.getElementById("viewstepadd").style.visibility = "visible";
+						if ($scope.prsteps.length != 0) {
+	 						for (var i = 0; i < $scope.prsteps.length; i++) {
+								size = $scope.stepsadd.length;
+								for (var j = 0; j < size; j++) {
+									if ($scope.stepsadd[j].name == $scope.prsteps[i].step.name) {
+										$scope.stepsadd.splice(j, 1);
+										size--;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				else{
+					document.getElementById("viewstepadd").style.visibility = "hidden";
+				}
+			}).error(function(responce) {
+			});
+		}
+
+		$scope.addStepToProgram = function(step) {
+			document.getElementById("viewstepadd").style.visibility = "hidden";
+			if (step.id != 0) {
+				$scope.prsteps.push({"id":"0", "program": $scope.program, "step": step, "stepOrder": 99, "description": step.description})
+			}
+			if ($scope.prsteps.length == 0) {
+				document.getElementById("viewnosteps").style.visibility = "visible";
+			}
+			else {
+				document.getElementById("viewnosteps").style.visibility = "hidden";
+			}
+		}
+
+		$scope.saveSteps = function() {
+			document.getElementById("viewstepadd").style.visibility = "hidden";
+			if ($scope.prsteps.length > 0) {
+				document.getElementById("viewnosteps").style.visibility = "hidden";
+	 			sendJson = $scope.prsteps;
+				$http({
+					method:'POST',
+					url: "/ImigrationRestServer/programstepsofprogramsave",
+					data: sendJson,
+					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
+				}).success(function() {
+				}).error(function() {
+				});
+			}
+			else {
+	 			sendJson = $scope.program;
+				$http({
+					method:'POST',
+					url: "/ImigrationRestServer/programstepsofprogramdelete",
+					data: sendJson,
+					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
+				}).success(function() {
+				}).error(function() {
+				});
+			}
+		}
+
+		$scope.revertEdit = function() {
+			document.getElementById("viewstepadd").style.visibility = "hidden";
+			sendJson = $scope.program;
+ 			$http({
+				method:'POST',
+				url: "/ImigrationRestServer/programstepsofprogram",
+				data: sendJson,
+				headers:{'Content-Type' :'application/x-www-form-urlencoded'}
+			}).success(function(responcePS) {
+				if (responcePS.length > 0) {
+					$scope.prsteps = responcePS;
+					document.getElementById("viewnosteps").style.visibility = "hidden";
+				}
+				else{
+					$scope.prsteps = [];
+					document.getElementById("viewnosteps").style.visibility = "visible";
+				}
+			}).error(function(responcePS) {
+				// $scope.prsteps = [];
+			});
+		}
+
+		
+		$scope.getTemplate = function (item) {
+			if (item.id === $scope.itemedit.id && item.step.name == $scope.itemedit.step.name) {
+				return 'edit';
+			}
+	        else {
+	        	return 'display';
+	        }
+ 		};
+		
+		$scope.resetItem = function () {
+	        $scope.itemedit = {};
+	    };
+		
+		$scope.editItem = function (item) {
+			document.getElementById("viewstepadd").style.visibility = "hidden";
+			$scope.resetItem();
+	        $scope.itemedit = angular.copy(item);
+	    };
+		
+		$scope.updateItem = function(item) {
+			document.getElementById("viewstepadd").style.visibility = "hidden";
+			if (item.value != "") {
+				for (var i = 0; i< $scope.prsteps.length; i++) {
+					if ($scope.prsteps[i].step.name == item.step.name) {
+						$scope.prsteps[i].stepOrder = item.stepOrder;
+						$scope.prsteps[i].description = item.description;
+						break;
+					}
+				}
+				$scope.resetItem();
+			}
+		}
+ 		
+		$scope.deleteItem = function(item) {
+			document.getElementById("viewstepadd").style.visibility = "hidden";
+			for (var i = 0; i< $scope.prsteps.length; i++) {
+				if ($scope.prsteps[i].step.name == item.step.name) {
+					$scope.prsteps.splice(i, 1);
+					break;
+				}
+			}
+			if ($scope.prsteps.length == 0) {
+				document.getElementById("viewnosteps").style.visibility = "visible";
+			}
+			else {
+				document.getElementById("viewnosteps").style.visibility = "hidden";
+			}
+		}
+
+
+	});
+</script>
+<style>
+</style>
+</head>
+<body>
+	<div class="panel-body" data-ng-controller="ProgStepsCtrl">
+		<div class="col-xs-5" id="steps">
+			<label>Country: {{program.country.name}}</label><br/>
+			<label>Steps in program: {{program.name}}</label><br/>
+			<p id="viewnosteps">Selected program don't have steps</p>
+			<table class="table table-bordered table-hover table-condensed">
+		        <colgroup>
+          			<col class="col-xs-3"/>
+          			<col class="col-xs-5"/>
+          			<col class="col-xs-2"/>
+          			<col class="col-xs-1"/>
+          			<col class="col-xs-1"/>
+        		</colgroup>
+				<thead>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Order</th>
+					<th style="text-align:center" colspan="2">Actions</th>
+				</thead>
+				<tbody>
+					<tr ng-repeat="item in prsteps | orderBy : 'stepOrder'" ng-include="getTemplate(item)">
+						<script type="text/ng-template" id="display">
+							<td>{{item.step.name}}</td>
+							<td>{{item.description}}</td>
+							<td>{{item.stepOrder}}</td>
+							<td><button type="button" class="btn btn-primary" ng-click="editItem(item)"><span class="glyphicon glyphicon-pencil"></button></td>
+							<td><button type="button" class="btn btn-default" ng-click="deleteItem(item)"><span class="glyphicon glyphicon-trash"></button></td>
+						</script>
+						<script type="text/ng-template" id="edit">
+							<td>{{item.step.name}}</td>
+							<td><input type="text" ng-model=itemedit.description class="form-control input-sm" required/></td>
+							<td><input type="number" ng-model=itemedit.stepOrder class="form-control input-sm" required/></td>
+							<td><button type="button" class="btn btn-primary" ng-click="updateItem(itemedit)"><span class="glyphicon glyphicon-ok"></button></td>
+							<td><button type="button" class="btn btn-default" ng-click="resetItem()"><span class="glyphicon glyphicon-remove"></button></td>
+						</script>
+					</tr>
+				</tbody>
+			</table>
+			<div id="stepsctrl" class="col-xs-12">
+				<button class="btn btn-primary" ng-click="addStep()">Add Step to Program</button>
+				<button class="btn btn-info" ng-click="saveSteps()">Save Steps</button>
+				<button class="btn btn-primary" ng-click="revertEdit()">Revert</button>
+			</div>
+			<div id="viewstepadd" class="col-xs-7 form-group">
+				<label>Select step to add:</label><br/>
+				<select class="form-control" ng-change="addStepToProgram(stepsadd.selected)" ng-model="stepsadd.selected" ng-options="ss.name for ss in stepsadd track by ss.id" ></select>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

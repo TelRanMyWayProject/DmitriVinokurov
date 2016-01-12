@@ -13,7 +13,7 @@ public class WaySteps {
 	int WayStepsId;
 
 	@ManyToOne
-	ProgramSteps ProgSteps;
+	ProgramStep ProgSteps;
 	
 	
 	public WaySteps() {
@@ -47,11 +47,11 @@ public class WaySteps {
 		return WayStepsId;
 	}
 
-	public ProgramSteps getProgSteps() {
+	public ProgramStep getProgSteps() {
 		return ProgSteps;
 	}
 
-	public void setProgSteps(ProgramSteps progSteps) {
+	public void setProgSteps(ProgramStep progSteps) {
 		ProgSteps = progSteps;
 	}
 	

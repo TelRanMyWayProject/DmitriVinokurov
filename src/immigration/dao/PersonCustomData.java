@@ -16,6 +16,9 @@ public class PersonCustomData {
 	@ManyToOne
 	PersonData personData;
 
+	@ManyToOne
+	private FieldNames fieldNames;
+	
 	public PersonCustomData(String value, PersonData personData) {
 		super();
 		this.value = value;

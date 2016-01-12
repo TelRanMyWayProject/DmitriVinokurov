@@ -2,16 +2,25 @@ package immigration.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Embassy{
 	
 private static final String PHONE = "phone";
+private static final String FAX = "fax";
+private static final String EMAIL = "email";
+private static final String TYPE = "type";
 private static final String LINK = "link";
 private static final String EMBASSYID = "EmbassyID";
 private static final String ADDRESS = "address";
 String phone;
+String fax;
+String email;
+String type;
 String link;
 String address;
 
@@ -26,21 +35,49 @@ Country country;
 @ManyToOne
 Country location;
 
-public Embassy(String phone, String link) {
-	super();
-	this.phone = phone;
-	this.link = link;
-}
-
 public Embassy() {
 	super();
 }
+
+public String getFax() {
+	return fax;
+}
+
+public void setFax(String fax) {
+	this.fax = fax;
+}
+
+public String getEmail() {
+	return email;
+}
+
+public void setEmail(String email) {
+	this.email = email;
+}
+
+public String getType() {
+	return type;
+}
+
+public void setType(String type) {
+	this.type = type;
+}
+
 public void setProperties(Map<String, String> properties) throws NumberFormatException{
 	{
 		String property=null;
 		property=properties.get(PHONE);
 		if(property != null&&property!="")
 			phone=property;
+		property=properties.get(FAX);
+		if(property != null&&property!="")
+			fax=property;
+		property=properties.get(EMAIL);
+		if(property != null&&property!="")
+			email=property;
+		property=properties.get(TYPE);
+		if(property != null&&property!="")
+			type=property;
 		property=properties.get(LINK);
 		if(property != null&&property!="")
 			link=property;
@@ -52,9 +89,13 @@ public void setProperties(Map<String, String> properties) throws NumberFormatExc
 			EmbassyID=Integer.parseInt(property);
 	}
 }
+@JsonIgnore
 public Map<String, Object> getProperties(){
 	Map<String, Object> res=new HashMap<String, Object>();
 	res.put(PHONE, phone);
+	res.put(FAX, fax);
+	res.put(EMAIL, email);
+	res.put(TYPE, type);
 	res.put(LINK, link);
 	res.put(ADDRESS, address);
 	res.put(EMBASSYID, EmbassyID);

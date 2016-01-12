@@ -1,7 +1,5 @@
 package immigration.dao;
 
-import java.util.List;
-
 import javax.persistence.*;
 
 
@@ -19,8 +17,8 @@ public class Address {
 	@Column(name = "addressId")
 	int addressId;
 	
-	@ManyToMany(mappedBy="addresses")
-	List <PersonData> personData;
+	@ManyToOne
+	PersonData personData;
 	
 	@ManyToOne
 	Country country;
@@ -108,11 +106,11 @@ public class Address {
 		this.addressId = addressId;
 	}
 
-	public List<PersonData> getPersonData() {
+	public PersonData getPersonData() {
 		return personData;
 	}
 
-	public void setPersonData(List<PersonData> personData) {
+	public void setPersonData(PersonData personData) {
 		this.personData = personData;
 	}
 

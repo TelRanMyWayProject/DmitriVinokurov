@@ -1,4 +1,5 @@
-package immigration.controller.immigration.controller;
+package immigration.controller;
+
 
 
 import java.util.LinkedHashMap;
@@ -7,7 +8,6 @@ import immigration.dao.Country;
 import immigration.dao.Embassy;
 import immigration.dao.Programs;
 import immigration.interfaces.ImmigrationRepository;
-import immigration.constants.Constants;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,20 +26,20 @@ public class ProgramsImmigrationController {
 	ImmigrationRepository Hibernate;
 	
 	@RequestMapping
-	(value=immigration.constants.Constants.COUNTRIES,method=RequestMethod.GET)
+	(value=immigration.interfaces.ImmigrationRepository.COUNTRIES,method=RequestMethod.GET)
 	String getAllCountrys(Model model){
 		return "ListCountrys";
 	}
 	
 	@RequestMapping
-	(value=Constants.LIST_COUNTRIES,method=RequestMethod.GET)
+	(value=immigration.interfaces.ImmigrationRepository.LIST_COUNTRIES,method=RequestMethod.GET)
 	@ResponseBody Iterable <Country> GetListCountries(){
 		return Hibernate.getAllCountry();
 	}
 	
 	@RequestMapping
-	(value=Constants.COUNTRY,method=RequestMethod.POST)
-	@ResponseBody Country addCountry(@RequestBody LinkedHashMap map){
+	(value=immigration.interfaces.ImmigrationRepository.COUNTRY,method=RequestMethod.POST)
+	@ResponseBody Country addCountry(@RequestBody LinkedHashMap<String, String> map){
 		Country error=new Country();
 		error.setName("Error");
 		Country cr=Hibernate.addCountry(map);
@@ -50,8 +50,8 @@ public class ProgramsImmigrationController {
 	}
 	
 	@RequestMapping
-	(value=Constants.COUNTRY_EDIT,method=RequestMethod.POST)
-	@ResponseBody Country editCountry(@RequestBody LinkedHashMap map){
+	(value=immigration.interfaces.ImmigrationRepository.COUNTRY_EDIT,method=RequestMethod.POST)
+	@ResponseBody Country editCountry(@RequestBody LinkedHashMap<String, String> map){
 		Country error=new Country();
 		error.setName("Error");
 		Country cr=Hibernate.editCountry(map,Integer.parseInt(map.get("countryId").toString()));
@@ -62,7 +62,7 @@ public class ProgramsImmigrationController {
 	}
 
 	@RequestMapping
-	(value=Constants.PROGRAMS,method=RequestMethod.GET)
+	(value=immigration.interfaces.ImmigrationRepository.PROGRAMS,method=RequestMethod.GET)
 	String getProgramsByCountryId(int countryId,Model model){
 		Country ctr=Hibernate.getCountryById(countryId);
 		if (ctr==null)
@@ -71,43 +71,33 @@ public class ProgramsImmigrationController {
 		return "ListPrograms";
 	}
 	@RequestMapping
-	(value=Constants.LIST_PROGRAMS,method=RequestMethod.GET)
+	(value=immigration.interfaces.ImmigrationRepository.LIST_PROGRAMS,method=RequestMethod.GET)
 	@ResponseBody Iterable <Programs> GetListPrograms(int countryId){
 		return Hibernate.getProgramsByCountry(countryId);
 	}
 	
 	@RequestMapping
-	(value=Constants.PROGRAM,method=RequestMethod.POST)
-	@ResponseBody Programs addProgram(@RequestBody LinkedHashMap map){
-		Programs error=new Programs();
-		error.setName("Error");
-		Programs pr=Hibernate.addProgram(map,Integer.parseInt(map.get("countryId").toString()));
-		if(pr!=null)
-			return pr;
-		else
-			return error;
+	(value=immigration.interfaces.ImmigrationRepository.PROGRAM,method=RequestMethod.POST)
+	@ResponseBody Programs addProgram(@RequestBody LinkedHashMap<String, String> map){
+		return Hibernate.addProgram(map,Integer.parseInt(map.get("countryId").toString()));
+		
 	}
 	
 	@RequestMapping
-	(value=Constants.PROGRAM_EDIT,method=RequestMethod.POST)
-	@ResponseBody Programs editProgram(@RequestBody LinkedHashMap map){
-		Programs error=new Programs();
-		error.setName("Error");
+	(value=immigration.interfaces.ImmigrationRepository.PROGRAM_EDIT,method=RequestMethod.POST)
+	@ResponseBody Programs editProgram(@RequestBody LinkedHashMap<String, String> map){
 		int Id=Integer.parseInt(map.get("programId").toString());
-		Programs pr=Hibernate.editProgram(map,Id);
-		if(pr!=null)
-			return pr;
-		else
-			return error;
+		return Hibernate.editProgram(map,Id);
+		
 	}
 	@RequestMapping
-	(value=Constants.LIST_EMBASSIES,method=RequestMethod.GET)
+	(value=immigration.interfaces.ImmigrationRepository.LIST_EMBASSIES,method=RequestMethod.GET)
 	@ResponseBody Iterable<Embassy> GetListEmbassies(int countryId){
 		return Hibernate.getEmbassyByCountry(countryId);
 	}
 	
 	@RequestMapping
-	(value=Constants.EMBASSIES,method=RequestMethod.GET)
+	(value=immigration.interfaces.ImmigrationRepository.EMBASSIES,method=RequestMethod.GET)
 	String getEmbassiesByCountryId(int countryId,Model model){
 		Country ctr=Hibernate.getCountryById(countryId);
 		if (ctr==null)
@@ -117,8 +107,8 @@ public class ProgramsImmigrationController {
 	}
 	
 	@RequestMapping
-	(value=Constants.EMBASSY,method=RequestMethod.POST)
-	@ResponseBody Embassy addEmbassy(@RequestBody LinkedHashMap map){
+	(value=immigration.interfaces.ImmigrationRepository.EMBASSY,method=RequestMethod.POST)
+	@ResponseBody Embassy addEmbassy(@RequestBody LinkedHashMap<String, String> map){
 		Embassy error=new Embassy();
 		error.setPhone("Error");
 		int CountryId=Integer.parseInt(map.get("countryId").toString());
@@ -129,8 +119,8 @@ public class ProgramsImmigrationController {
 	}
 	
 	@RequestMapping
-	(value=Constants.EMBASSY_EDIT,method=RequestMethod.POST)
-	@ResponseBody Embassy editEmbassy(@RequestBody LinkedHashMap map){
+	(value=immigration.interfaces.ImmigrationRepository.EMBASSY_EDIT,method=RequestMethod.POST)
+	@ResponseBody Embassy editEmbassy(@RequestBody LinkedHashMap<String, String> map){
 		Embassy error=new Embassy();
 		error.setPhone("Error");
 		Embassy emb=Hibernate.editEmbassy(map, Integer.parseInt(map.get("embassyID").toString()));

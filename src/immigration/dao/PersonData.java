@@ -42,7 +42,7 @@ public class PersonData {
 	@JoinTable(name="PersonDocuments",joinColumns={@JoinColumn(name="PersonDataId")},inverseJoinColumns={@JoinColumn(name="PersonDocId")})
 	List<PersonDocuments> documents;
 	
-	@ManyToMany
+	@OneToMany
 	@JoinTable(name="Address",joinColumns={@JoinColumn(name="PersonDataId")},inverseJoinColumns={@JoinColumn(name="addressId")})
 	List<Address> addresses;
 	
