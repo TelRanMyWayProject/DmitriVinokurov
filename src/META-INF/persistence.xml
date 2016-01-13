@@ -8,11 +8,11 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/x
  <properties>
  <property name="hibernate.hbm2ddl.auto" value="update"/>
  <property name="hibernate.connection.url" 
- value="jdbc:mysql://localhost/mw"/>
+ value="jdbc:mysql://localhost/myway"/>
  <property name="hibernate.connection.driver_class" 
  value="com.mysql.jdbc.Driver"/>
  <property name="hibernate.connection.username" value="root"/>
- <property name="hibernate.connection.password" value=""/>
+ <property name="hibernate.connection.password" value="privet"/>
  </properties>
   </persistence-unit>
 </persistence>
