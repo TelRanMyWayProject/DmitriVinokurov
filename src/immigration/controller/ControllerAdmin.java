@@ -54,7 +54,7 @@ public class ControllerAdmin {
 
 
 	// AdminFirst.JSP
-	@RequestMapping("/")
+	@RequestMapping("/mainPage")
 	public String getAdminFirstController() {
 		return "AdminFirst";
 	}

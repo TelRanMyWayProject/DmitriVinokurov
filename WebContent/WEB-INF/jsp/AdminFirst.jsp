@@ -6,21 +6,15 @@
 <title>Yimin Admin</title>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 <link href="<c:url value='/static/css/bootstrap.min.css' />" rel="stylesheet"></link>
 <link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
 
-<script>
-	angular.module('AdminFirst', [])
-	.controller('AdminFirstCtrl', function($scope, $http) {
-		
-	});
-</script>
+
 <style>
 </style>
 </head>
 <body>
-	<div class="panel-body" data-ng-controller="AdminFirstCtrl">
+	<div class="panel-body">
 		<div class="col-xs-2 form-group" id="AdminFirst">
 			<label><H3>Yimin Project</H3></label><br/><br/>
 			<label>Select Operation</label><br/>

@@ -16,6 +16,7 @@
 </head>
 <body>
 <div data-ng-app="country_app" data-ng-controller="countrys_contr" data-ng-cloak class="col-xs-90 form-group">
+<button data-ng-click=sendMainPage()>Main page</button>
 <p style="max-width:15%;">Filter by name: <input type="text" data-ng-model="search.name" class="form-control input-sm"></p>
 <div class="col-xs-100 form-group">
 <table class="table table-hover table-condensed">
@@ -161,6 +162,12 @@ appl.controller('countrys_contr',function($scope,$http){
 		element.name=values[values.length-1].name;
 		element.value=values[values.length-1].value;
 		form.appendChild(element);
+		document.body.appendChild(form);
+	    form.submit();
+	}
+	$scope.sendMainPage=function(){
+		var form = document.createElement("form");
+		form.action='mainPage';
 		document.body.appendChild(form);
 	    form.submit();
 	}
