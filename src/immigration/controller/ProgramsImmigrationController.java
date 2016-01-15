@@ -111,7 +111,7 @@ public class ProgramsImmigrationController {
 	@ResponseBody Embassy addEmbassy(@RequestBody LinkedHashMap<String, String> map){
 		Embassy error=new Embassy();
 		error.setPhone("Error");
-		int CountryId=Integer.parseInt(map.get("countryId").toString());
+		int CountryId=Integer.parseInt(map.get("countryId"));
 		Embassy emb=Hibernate.addEmbassy(map, CountryId);
 		if(emb!=null)
 			return emb;

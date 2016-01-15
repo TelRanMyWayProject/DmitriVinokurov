@@ -152,7 +152,7 @@ public class immigrationRepository implements ImmigrationRepository {
 	@Transactional(readOnly = false)
 	public Embassy addEmbassy(Map<String, String> properties,int CountryID) {
 		Country cr=em.find(Country.class, CountryID);
-		Country location=em.find(Country.class, properties.get("location"));
+		Country location=em.find(Country.class, Integer.parseInt(properties.get("location")));
 		if(cr!=null&&properties.get("phone")!=""){
 			Embassy emb= new Embassy();
 			emb.setProperties(properties);
@@ -180,7 +180,7 @@ public class immigrationRepository implements ImmigrationRepository {
 	@Transactional(readOnly = false)
 	public Embassy editEmbassy(Map<String, String> properties, int EmbassyID) {
 		Embassy emb=em.find(Embassy.class, EmbassyID);
-		Country location=em.find(Country.class, properties.get("location"));
+		Country location=em.find(Country.class, Integer.parseInt(properties.get("location")));
 		List<?> list=getEmbassyFromQueryEdit(emb.getCountry().getCountryId(),properties.get("phone"),EmbassyID);
 		if(list.size()==0){
 			emb.setProperties(properties);
