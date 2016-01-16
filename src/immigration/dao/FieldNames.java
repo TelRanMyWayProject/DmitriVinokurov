@@ -19,7 +19,7 @@ public class FieldNames {
 	@Column(name = "name", unique = true, nullable = false)
 	private String name;
 
-	@Column(name = "possibleValues", nullable = false, columnDefinition = "DEFAULT ''")
+	@Column(name = "possibleValues", nullable = false)
 	private String possibleValues;
 
 	public FieldNames() {

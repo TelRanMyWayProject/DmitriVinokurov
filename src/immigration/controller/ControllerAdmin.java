@@ -1,8 +1,5 @@
 package immigration.controller;
 
-import immigration.dao.*;
-import immigration.interfaces.ImmigrationRepository;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -21,6 +18,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
+import immigration.dao.FieldNames;
+import immigration.dao.ProgramCustomData;
+import immigration.dao.ProgramStep;
+import immigration.dao.Programs;
+import immigration.dao.Step;
+import immigration.interfaces.ImmigrationRepository;
 
 
 @Controller
@@ -65,9 +69,8 @@ public class ControllerAdmin {
 	public String getAllStepsController(Model model) {
 		Iterable<Step> res = hibernateWeb.getAllSteps();
 		Iterator<Step> iterator = res.iterator();
-		String resJson = "[{}]";
+		String resJson = "[]";
 		if (iterator.hasNext() == true) {
-			// String resJson = "{\"steps\":" + new Gson().toJson(res) + "}";
 			resJson = new Gson().toJson(res);
 		}
 		else {
@@ -86,7 +89,7 @@ public class ControllerAdmin {
 		Step step = new Gson().fromJson(str2, Step.class);
 		if (step != null && step.getName().length() > 0)
 			id = hibernateWeb.addStep(step.getName(), step.getDescription());
-		String resJson = "[{}]";
+		String resJson = "[]";
 		if (id != -1)
 			resJson = new Gson().toJson(hibernateWeb.getStep(id));
 		try {
@@ -128,13 +131,14 @@ public class ControllerAdmin {
 	public String getAllFieldNamesController(Model model) {
 		Iterable<FieldNames> res = hibernateWeb.getAllFieldNames();
 		Iterator<FieldNames> iterator = res.iterator();
+		String resJson = "[]";
 		if (iterator.hasNext() == true) {
-			String resJson = new Gson().toJson(res);
-			model.addAttribute(RESULT, resJson);
+			resJson = new Gson().toJson(res);
 		}
 		else {
 			// FieldNames List is empty !!!
 		}
+		model.addAttribute(RESULT, resJson);
 		return "FieldNames";
 	}
 
@@ -147,7 +151,7 @@ public class ControllerAdmin {
 		FieldNames fieldNames = new Gson().fromJson(str2, FieldNames.class);
 		if (fieldNames != null && fieldNames.getName() != "")
 			id = hibernateWeb.addFieldNames(fieldNames);
-		String resJson = "[{}]";
+		String resJson = "[]";
 		if (id != -1)
 			resJson = new Gson().toJson(hibernateWeb.getFieldNames(id));
 		try {
@@ -363,8 +367,5 @@ public class ControllerAdmin {
 		}
 
 	}
-
-
-	
 
 }
