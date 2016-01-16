@@ -19,7 +19,7 @@
         $scope.itemadd = {"id":0,"name":"","description":""};
 
 		$scope.getTemplate = function (item) {
-	        if (item.id === $scope.itemedit.id && item.name == $scope.itemedit.name) {
+	        if (item.id === $scope.itemedit.id) {
 				return 'edit';
 			}
 	        else {
@@ -44,7 +44,7 @@
 	 			sendJson = item;
 	 			$http({
 					method:'POST',
-					url: "/ImigrationRestServer/stepedit",
+					url: '/' + window.location.href.split('/')[3] + '/stepedit',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function(responce) {
@@ -68,7 +68,7 @@
 	 			sendJson = item;
 				$http({
 					method:'POST',
-					url: "/ImigrationRestServer/stepadd",
+					url: '/' + window.location.href.split('/')[3] + '/stepadd',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function(responce) {
@@ -92,7 +92,10 @@
 
 	});
 </script>
-<style>
+<style type="text/css">
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -121,7 +124,7 @@
 						</script>
 						<script type="text/ng-template" id="edit">
 							<td><input type="text" ng-model=itemedit.name class="form-control input-sm" required/></td>
-							<td><input type="text" ng-model=itemedit.description class="form-control input-sm" required/></td>
+							<td><input type="text" ng-model=itemedit.description class="form-control input-sm"/></td>
 							<td><button type="button" class="btn btn-primary" ng-click="updateItem(itemedit)"><span class="glyphicon glyphicon-ok"></button></td>
 							<td><button type="button" class="btn btn-default" ng-click="resetItem()"><span class="glyphicon glyphicon-remove"></button></td>
 						</script>

@@ -11,8 +11,7 @@
 <link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
 
 <script>
-	angular.module('ProgStepsApp', [])
-	.constant("baseUrl","/YiminAdmin/")
+	angular.module('ProgStepsApp', ['filters'])
 	.controller('ProgStepsCtrl', function($scope, $http) {
 		document.getElementById("viewnosteps").style.visibility = "hidden";
 		document.getElementById("viewstepadd").style.visibility = "hidden";
@@ -28,7 +27,7 @@
 		$scope.addStep = function() {
  			$http({
 				method:'POST',
-				url: "/ImigrationRestServer/stepsrest",
+				url: '/' + window.location.href.split('/')[3] + '/stepsrest',
 				headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 			}).success(function(responce) {
 				if (responce.length > 0) {
@@ -80,7 +79,7 @@
 	 			sendJson = $scope.prsteps;
 				$http({
 					method:'POST',
-					url: "/ImigrationRestServer/programstepsofprogramsave",
+					url: '/' + window.location.href.split('/')[3] + '/programstepsofprogramsave',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function() {
@@ -91,7 +90,7 @@
 	 			sendJson = $scope.program;
 				$http({
 					method:'POST',
-					url: "/ImigrationRestServer/programstepsofprogramdelete",
+					url: '/' + window.location.href.split('/')[3] + '/programstepsofprogramdelete',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function() {
@@ -105,7 +104,7 @@
 			sendJson = $scope.program;
  			$http({
 				method:'POST',
-				url: "/ImigrationRestServer/programstepsofprogram",
+				url: '/' + window.location.href.split('/')[3] + '/programstepsofprogram',
 				data: sendJson,
 				headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 			}).success(function(responcePS) {
@@ -172,10 +171,27 @@
 			}
 		}
 
-
 	});
+	
+	angular.module('filters', [])
+	.filter('strLimit', function () {
+        return function (text, length) {
+            if (isNaN(length))
+                length = 30;
+            if (text.length <= length) {
+                return text;
+            }
+            else {
+            	return String(text).substring(0, length + 1);
+            }
+        };
+    });
+	
 </script>
-<style>
+<style type="text/css">
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -202,7 +218,7 @@
 					<tr ng-repeat="item in prsteps | orderBy : 'stepOrder'" ng-include="getTemplate(item)">
 						<script type="text/ng-template" id="display">
 							<td>{{item.step.name}}</td>
-							<td>{{item.description}}</td>
+							<td>{{item.description | strLimit : 30}}</td>
 							<td>{{item.stepOrder}}</td>
 							<td><button type="button" class="btn btn-primary" ng-click="editItem(item)"><span class="glyphicon glyphicon-pencil"></button></td>
 							<td><button type="button" class="btn btn-default" ng-click="deleteItem(item)"><span class="glyphicon glyphicon-trash"></button></td>

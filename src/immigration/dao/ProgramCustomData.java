@@ -1,12 +1,18 @@
 package immigration.dao;
 
-
-import javax.persistence.*;
-
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "programcustomdata")
 public class ProgramCustomData {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -20,6 +26,7 @@ public class ProgramCustomData {
 	private FieldNames fieldNames;
 
 	@ManyToOne
+	@JoinColumn(name = "id_program", referencedColumnName = "ProgramId", nullable = false)
 	private Programs program;
 	// private transient Program program;
 
@@ -68,7 +75,5 @@ public class ProgramCustomData {
 	public String toString() {
 		return "ProgramCustomData [id=" + id + ", value=" + value + ", fieldNames=" + fieldNames + ", program=" + program + "]";
 	}
-	
-	
 	
 }

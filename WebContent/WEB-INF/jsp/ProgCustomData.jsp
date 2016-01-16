@@ -12,7 +12,6 @@
 
 <script>
 	angular.module('ProgCustDataApp', [])
-	.constant("baseUrl","/ImigrationRestServer/")
 	.controller('ProgCustDataCtrl', function($scope, $http) {
 		document.getElementById("viewnocustdata").style.visibility = "hidden";
 		document.getElementById("viewcustdataadd").style.visibility = "hidden";
@@ -28,7 +27,7 @@
 		$scope.addCustData = function() {
  			$http({
 				method:'POST',
-				url: "/ImigrationRestServer/fieldnamesrest",
+				url: '/' + window.location.href.split('/')[3] + '/fieldnamesrest',
 				headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 			}).success(function(responce) {
 				if (responce.length > 0) {
@@ -80,7 +79,7 @@
 	 			sendJson = $scope.prcustdata;
 				$http({
 					method:'POST',
-					url: "/ImigrationRestServer/programcustdataofprogramsave",
+					url: '/' + window.location.href.split('/')[3] + '/programcustdataofprogramsave',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function() {
@@ -91,7 +90,7 @@
 	 			sendJson = $scope.program;
 				$http({
 					method:'POST',
-					url: "/ImigrationRestServer/programcustdataofprogramdelete",
+					url: '/' + window.location.href.split('/')[3] + '/programcustdataofprogramdelete',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function() {
@@ -105,7 +104,7 @@
 			sendJson = $scope.program;
  			$http({
 				method:'POST',
-				url: "/ImigrationRestServer/programcustdatasofprogram",
+				url: '/' + window.location.href.split('/')[3] + '/programcustdatasofprogram',
 				data: sendJson,
 				headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 			}).success(function(responce) {
@@ -174,7 +173,10 @@
 
 	});
 </script>
-<style>
+<style type="text/css">
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 </style>
 </head>
 <body>

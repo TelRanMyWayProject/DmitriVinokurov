@@ -1,9 +1,16 @@
 package immigration.dao;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "fieldnames")
 public class FieldNames {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -12,6 +19,7 @@ public class FieldNames {
 	@Column(name = "name", unique = true, nullable = false)
 	private String name;
 
+	@Column(name = "possibleValues", nullable = false, columnDefinition = "DEFAULT ''")
 	private String possibleValues;
 
 	public FieldNames() {
@@ -46,5 +54,4 @@ public class FieldNames {
 		return "FieldNames [id=" + id + ", name=" + name + ", possibleValues=" + possibleValues + "]";
 	}
 	
-
 }
