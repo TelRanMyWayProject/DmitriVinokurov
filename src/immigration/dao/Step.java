@@ -17,7 +17,8 @@ public class Step {
 	@Column(name = "id")
 	private int id;
 
-	@Column(name = "name", unique = true, nullable = false)
+	@Column(name = "name", columnDefinition = "VARCHAR(255) NOT NULL UNIQUE DEFAULT ''")
+	// @Column(name = "name", unique = true, nullable = false)
 	private String name;
 
 	private String description;

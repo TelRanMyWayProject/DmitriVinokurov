@@ -18,7 +18,8 @@ public class ProgramCustomData {
 	@Column(name = "id")
 	private int id;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "value", columnDefinition = "VARCHAR(255) NOT NULL DEFAULT ''")
+	// @Column(name = "value", nullable = false)
 	private String value;
 
 	@ManyToOne
