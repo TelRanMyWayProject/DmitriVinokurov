@@ -13,8 +13,8 @@
 <script>
 	angular.module('ProgCustDataApp', [])
 	.controller('ProgCustDataCtrl', function($scope, $http) {
-		document.getElementById("viewnocustdata").style.visibility = "hidden";
-		document.getElementById("viewcustdataadd").style.visibility = "hidden";
+		// document.getElementById("viewnocustdata").style.visibility = "hidden";
+		// document.getElementById("viewcustdataadd").style.visibility = "hidden";
 		var jsonRes = JSON.parse('${result}');
 		$scope.prcustdata = jsonRes.programcustdata;
 		$scope.program = jsonRes.program;
@@ -184,7 +184,7 @@
 		<div class="col-xs-5" id="customdata">
 			<label>Country: {{program.country.name}}</label><br/>
 			<label>Custom data in program: {{program.name}}</label><br/>
-			<p id="viewnocustdata">Selected program don't have custom data</p>
+			<p id="viewnocustdata" style="visibility:hidden;">Selected program don't have custom data</p>
 			<table class="table table-bordered table-hover table-condensed">
 		        <colgroup>
           			<col class="col-xs-4"/>
@@ -221,7 +221,7 @@
 				<button class="btn btn-info" ng-click="saveCustData()">Save Custom Data</button>
 				<button class="btn btn-primary" ng-click="revertEdit()">Revert</button>
 			</div>
-			<div id="viewcustdataadd" class="col-xs-7 form-group">
+			<div id="viewcustdataadd" style="visibility:hidden;" class="col-xs-7 form-group">
 				<label>Select custom data to add:</label><br/>
 				<select class="form-control" ng-change="addCustDataToProgram(cdadd.selected)" ng-model="cdadd.selected" ng-options="cd.name for cd in cdadd track by cd.id" ></select>
 			</div>

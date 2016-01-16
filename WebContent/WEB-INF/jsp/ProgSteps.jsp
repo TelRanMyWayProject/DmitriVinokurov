@@ -13,8 +13,8 @@
 <script>
 	angular.module('ProgStepsApp', ['filters'])
 	.controller('ProgStepsCtrl', function($scope, $http) {
-		document.getElementById("viewnosteps").style.visibility = "hidden";
-		document.getElementById("viewstepadd").style.visibility = "hidden";
+		// document.getElementById("viewnosteps").style.visibility = "hidden";
+		// document.getElementById("viewstepadd").style.visibility = "hidden";
 		var jsonRes = JSON.parse('${result}');
 		$scope.prsteps = jsonRes.programsteps;
 		$scope.program = jsonRes.program;
@@ -199,7 +199,7 @@
 		<div class="col-xs-5" id="steps">
 			<label>Country: {{program.country.name}}</label><br/>
 			<label>Steps in program: {{program.name}}</label><br/>
-			<p id="viewnosteps">Selected program don't have steps</p>
+			<p id="viewnosteps" style="visibility:hidden;">Selected program don't have steps</p>
 			<table class="table table-bordered table-hover table-condensed">
 		        <colgroup>
           			<col class="col-xs-3"/>
@@ -238,7 +238,7 @@
 				<button class="btn btn-info" ng-click="saveSteps()">Save Steps</button>
 				<button class="btn btn-primary" ng-click="revertEdit()">Revert</button>
 			</div>
-			<div id="viewstepadd" class="col-xs-7 form-group">
+			<div id="viewstepadd" style="visibility:hidden;" class="col-xs-7 form-group">
 				<label>Select step to add:</label><br/>
 				<select class="form-control" ng-change="addStepToProgram(stepsadd.selected)" ng-model="stepsadd.selected" ng-options="ss.name for ss in stepsadd track by ss.id" ></select>
 			</div>
