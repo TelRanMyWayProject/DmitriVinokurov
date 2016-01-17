@@ -23,14 +23,15 @@
 		<colgroup>
 					<col width="9%"/>
 					<col width="7%"/>
-	          		<col width="22%"/>
-       		  		<col width="25%"/>
+	          		<col width="19%"/>
+       		  		<col width="22%"/>
        		  		<col width="3%"/>
-       		  		<col width="10%"/>
-       		  		<col width="6%"/>
-       		  		<col width="6%"/>
-       		  		<col width="6%"/>
-       		  		<col width="6%"/>
+       		  		<col width="9%"/>
+       		  		<col width="9%"/>
+       		  		<col width="5%"/>
+       		  		<col width="5%"/>
+       		  		<col width="5%"/>
+       		  		<col width="5%"/>
        	</colgroup>
 	<thead>
 		<tr>
@@ -39,7 +40,8 @@
 		<th>link</th>
 		<th>description</th>
 		<th></th>
-		<th>expiration</th>
+		<th>modified</th>
+		<th>created</th>
 		<th></th>
 		<th>Steps</th>
 		<th>Documents</th>
@@ -52,9 +54,8 @@
 		<td><input type="text" name="link" value="{{prog.link}}" class='{{$index}} form-control input-sm'></td>
 		<td><input type="text" name="description" value="{{prog.description}}" class='{{$index}} form-control input-sm'></td>
 		<td><input type="checkbox" name="enabled"  data-ng-model=prog.enabled class='{{$index}} checkbox'></td>
-		<td><datepicker date-format="yyyy-MM-dd" selector="form-control" date-set={{prog.expiration|date:'yyyy-MM-dd'}}>
-<input type="text" value="{{prog.expiration|date:'yyyy-MM-dd'}}" class="form-control {{$index}}"/>
-								</datepicker></td>
+		<td><span>{{prog.modified|date:'yyyy-MM-dd'}}</span></td>
+		<td><span>{{prog.startProgram|date:'yyyy-MM-dd'}}</span></td>
 		<td><button data-ng-click=SendEditRequest($event) name="button" class={{$index}} >Edit</button></td>
 		<td><button data-ng-click=sendStepRequest($event) name="button" class={{$index}}>Steps</button></td>
 		<td><button data-ng-click=sendDocumentsRequest($event) name="button" class={{$index}}>Documents</button></td>
@@ -67,9 +68,6 @@
 		<td><input type="text" class="adding form-control input-sm" name="link" placeholder="link"></td>
 		<td><input type="text" class="adding form-control input-sm" name="description" placeholder="description"></td>
 		<td><input type="checkbox" class="adding checkbox" name="enabled"></td>
-		<td><datepicker date-format="yyyy-MM-dd" selector="form-control" date-set={{prog.expiration|date:'yyyy-MM-dd'}}>
-<input type="text" class="form-control adding" placeholder="yyyy-MM-dd"/>
-								</datepicker></td>
 		<td><button data-ng-click=AddProgram() name="button">Add program</button></td>
 		<td><input type="hidden" class="adding" name="CountryId" value={{id}}></td>
 	</tr>
@@ -79,8 +77,8 @@
 <script>
 
 
-var appl=angular.module('programs_app',['720kb.datepicker']);
-appl.controller('programs_contr',function($scope,$http,$filter){
+var appl=angular.module('programs_app',[]);
+appl.controller('programs_contr',function($scope,$http){
 	var json=JSON.parse('${results}');
 	$scope.id=json.CountryId;
 	$scope.CountryName=json.name;
@@ -107,7 +105,6 @@ appl.controller('programs_contr',function($scope,$http,$filter){
 				link : values.link.value,
 				description : values.description.value,
 				enabled : values.enabled.checked.toString(),
-				expiration : values[5].value,
 				countryId: $scope.id
 		};
 		if(values.name.value!=""){
@@ -120,7 +117,6 @@ appl.controller('programs_contr',function($scope,$http,$filter){
 			if(response.name!="Error"){
 				$scope.progr[index]=response;
 				$scope.progr[index].Enabled=response.enabled.toString();
-				$scope.progr[index].expiration=response.expiration;
 				$scope.msg="";
 			}else{
 				alert("Program with this name already exists");
@@ -149,7 +145,6 @@ appl.controller('programs_contr',function($scope,$http,$filter){
 				link : values.link.value,
 				description : values.description.value,
 				enabled : values.enabled.checked.toString(),
-				expiration : values[5].value,
 				programId : values.programId.value,
 				countryId: $scope.id
 		};
@@ -171,13 +166,13 @@ appl.controller('programs_contr',function($scope,$http,$filter){
 				$scope.progr[index].link=response.link;
 				$scope.progr[index].description=response.description;
 				$scope.progr[index].enabled=response.enabled;
-				$scope.progr[index].expiration=response.expiration;
+				$scope.progr[index].modified=response.modified;
+				$scope.progr[index].startProgram=response.startProgram;
 			}else{
 				values.name.value=$scope.progr[index].name;
 				values.category.value=$scope.progr[index].category;
 				values.link.value=$scope.progr[index].link;
 				values.description.value=$scope.progr[index].description;
-				values[5].value=$filter('date')($scope.progr[index].expiration,"yyyy-MM-dd");
 				$scope.progr[index].enabled=response.enabled;
 				alert("Program with this name already exists");
 			}
@@ -189,7 +184,6 @@ appl.controller('programs_contr',function($scope,$http,$filter){
 			values.category.value=$scope.progr[index].category;
 			values.link.value=$scope.progr[index].link;
 			values.description.value=$scope.progr[index].description;
-			values[5].value=$filter('date')($scope.progr[index].expiration,"yyyy-MM-dd");
 			alert("Enter the name");
 		}
 		

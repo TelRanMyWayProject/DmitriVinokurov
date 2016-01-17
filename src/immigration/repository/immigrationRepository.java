@@ -1,6 +1,7 @@
 package immigration.repository;
 
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,8 @@ public class immigrationRepository implements ImmigrationRepository {
 		List<?> list=getProgramFromQuery(CountryID,properties.get("name"));
 		if(list.size()==0){
 			prog.setProperties(properties);
+			prog.setStartProgram(new Date());
+			prog.setModified(new Date());
 			prog.setCountry(cr);
 			em.persist(prog);
 		}else{
@@ -64,6 +67,7 @@ public class immigrationRepository implements ImmigrationRepository {
 		List<?> list=getProgramFromQueryEdit(pr.getCountry().getCountryId(),properties.get("name"),properties.get("programId"));
 		if(list.size()==0){
 			pr.setProperties(properties);
+			pr.setModified(new Date());
 			em.merge(pr);
 			return pr;
 		}else{

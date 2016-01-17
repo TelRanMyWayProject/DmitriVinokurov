@@ -1,10 +1,7 @@
 package immigration.dao; 
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.*;
@@ -18,7 +15,8 @@ public class Programs {
 	public static final String DESCRIPTION = "description";
 	public static final String CATEGORY = "category";
 	public static final String ENABLED = "enabled";
-	public static final String EXPIRATION = "expiration";
+	public static final String MODIFIED = "modified";
+	public static final String STARTDATE = "startDate";
 	public static final String PROGRAMID = "ProgramId";
 	
 	String name;
@@ -26,8 +24,8 @@ public class Programs {
 	String description;
 	String category;
 	boolean enabled;
-	Date expiration;
-	
+	Date modified;
+	Date startDate;
 	
 
 	@Id
@@ -56,14 +54,6 @@ public class Programs {
 			property=properties.get(ENABLED);
 			if(property == "false"||property!="true")
 				enabled=Boolean.parseBoolean(property);
-			property=properties.get(EXPIRATION);
-			if(property != null&&property!=""){
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-				try {
-					expiration = format.parse(property);
-				} catch (ParseException e) {
-				}
-			}
 			property=properties.get(PROGRAMID);
 			if(property != null&&property!="")
 				ProgramId=Integer.parseInt(property);
@@ -77,7 +67,6 @@ public class Programs {
 		res.put(DESCRIPTION, description);
 		res.put(CATEGORY, category);
 		res.put(ENABLED, enabled);
-		res.put(EXPIRATION, expiration);
 		res.put(PROGRAMID, ProgramId);
 		return res;
 	}
@@ -92,9 +81,10 @@ public class Programs {
 	public void setCountry(Country country) {
 		this.country = country;
 	}
-
+	
 	
 
+	
 	public Programs(String name, String link, String description,String category){
 		super();
 		this.name=name;
@@ -108,16 +98,19 @@ public class Programs {
 		super();
 	}
 	
+	public Date getStartProgram() {
+		return startDate;
+	}
 	@JsonIgnore
 	@Override
 	public String toString() {
-		String json=String.format("{\"name\":\"%s\",\"link\":\"%s\",\"description\":\"%s\",\"category\":\"%s\""
-				+ ",\"enabled\":\"%s\",\"expiration\":\"%td/%tm/%tY\",\"ProgramId\":\"%d\"}", 
-				name,link,description,category,enabled,expiration,expiration,expiration,ProgramId);
-		return json;
+		return "Programs [name=" + name + ", link=" + link + ", description=" + description + ", category=" + category
+				+ ", enabled=" + enabled + ", modified=" + modified + ", startDate=" + startDate + ", ProgramId="
+				+ ProgramId + ", country=" + country + "]";
 	}
-	
-	
+	public void setStartProgram(Date startProgram) {
+		this.startDate = startProgram;
+	}
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -126,14 +119,14 @@ public class Programs {
 		this.enabled = enabled;
 	}
 
-	public Date getExpiration() {
-		return expiration;
-	}
+	
 
-	public void setExpiration(Date expiration) {
-		this.expiration = expiration;
+	public Date getModified() {
+		return modified;
 	}
-
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
 	public void setProgramId(int programId) {
 		ProgramId = programId;
 	}
