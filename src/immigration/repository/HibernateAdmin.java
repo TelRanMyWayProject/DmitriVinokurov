@@ -1,8 +1,5 @@
 package immigration.repository;
 
-import immigration.interfaces.ImmigrationRepository;
-import immigration.dao.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -12,25 +9,17 @@ import javax.persistence.Query;
 
 import org.springframework.transaction.annotation.Transactional;
 
-
+import immigration.dao.Country;
+import immigration.dao.Embassy;
+import immigration.dao.FieldNames;
+import immigration.dao.ProgramCustomData;
+import immigration.dao.ProgramStep;
+import immigration.dao.Programs;
+import immigration.dao.Step;
+import immigration.interfaces.ImmigrationRepository;
 
 
 public class HibernateAdmin implements ImmigrationRepository {
-
-	// private static final String COUNTRY = "country";
-	// private static final String PROGRAM = "program";
-	// private static final String PROGRAM_CATEGORY = "category";
-	// private static final String PROGRAM_LINK = "link";
-	// private static final String PROGRAM_DESCRIPTION = "description";
-	// private static final String PROGRAM_ENABLE = "enableProgram";
-	// private static final String PROGRAM_DATESTART = "dateStart";
-	// private static final String PROGRAM_DATEEND = "dateEnd";
-	// private static final String PROGRAMCUSTOMDATA_VALUE = "value";
-	// private static final String NAME = "name";
-	// private static final String FIELDNAMES = "fieldNames";
-	// private static final String POSSIBLEVALUES = "possibleValues";
-	// private static final String STEPORDER = "stepOrder";
-	// private static final String STEP = "step";
 
 	@PersistenceContext(unitName = "springHibernate")
 	EntityManager entityManager;
@@ -150,7 +139,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		Programs program = programStep.getProgram();
 		Step step = programStep.getStep();
 		if (program != null && step != null) {
-			Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE program_ProgramId = ?1 AND step_id = ?2");
+			Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 AND id_step = ?2");
 			query.setParameter(1, program.getProgramId());
 			query.setParameter(2, step.getId());
 			if (query.getResultList().isEmpty()) {
@@ -169,7 +158,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@Transactional(readOnly = false)
 	public int addProgramStep(Programs program, Step step, int stepOrder, String description) {
 		if (program != null && step != null) {
-			Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE program_ProgramId = ?1 AND step_id = ?2");
+			Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 AND id_step = ?2");
 			query.setParameter(1, program.getProgramId());
 			query.setParameter(2, step.getId());
 			if (query.getResultList().isEmpty()) {
@@ -268,7 +257,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 	public Iterable<ProgramStep> getAllProgramStepsInProgram(Programs program) {
 		if (program != null) {
 			try {
-				Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE program_ProgramId = ?1 order by stepOrder");
+				Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 order by stepOrder");
 				query.setParameter(1, program.getProgramId());
 				@SuppressWarnings("unchecked")
 				List<ProgramStep> resList = query.getResultList();
@@ -381,7 +370,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		Programs program = programCustomData.getProgram();
 		FieldNames fieldNames = programCustomData.getFieldNames();
 		if (program != null && fieldNames != null) {
-			Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE program_ProgramId = ?1 AND id_fieldnames = ?2");
+			Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE id_program = ?1 AND id_fieldnames = ?2");
 			query.setParameter(1, program.getProgramId());
 			query.setParameter(2, fieldNames.getId());
 			if (query.getResultList().isEmpty()) {
@@ -400,7 +389,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@Transactional(readOnly = false)
 	public int addProgramCustomData(Programs program, FieldNames fieldNames, String value) {
 		if (value != null && value != "" && program != null && fieldNames != null) {
-			Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE program_ProgramId = ?1 AND id_fieldnames = ?2");
+			Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE id_program = ?1 AND id_fieldnames = ?2");
 			query.setParameter(1, program.getProgramId());
 			query.setParameter(2, fieldNames.getId());
 			if (query.getResultList().isEmpty()) {
@@ -433,7 +422,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 	public Iterable<ProgramCustomData> getAllProgramCustomDataInProgram(Programs program) {
 		if (program != null) {
 			try {
-				Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE program_ProgramId = ?1");
+				Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE id_program = ?1");
 				query.setParameter(1, program.getProgramId());
 				return query.getResultList();
 			}

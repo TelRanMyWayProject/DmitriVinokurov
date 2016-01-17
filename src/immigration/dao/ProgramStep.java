@@ -1,8 +1,14 @@
+// Create by Sergey Nov 20, 2015 7:18:20 PM
 package immigration.dao;
 
-import javax.persistence.*;
-
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "programstep")
@@ -14,9 +20,11 @@ public class ProgramStep {
 	private int id;
 
 	@ManyToOne
+	@JoinColumn(name = "id_program", referencedColumnName = "ProgramId", nullable = false)
 	private Programs program;
 
 	@ManyToOne
+	@JoinColumn(name = "id_step", referencedColumnName = "id", nullable = false)
 	private Step step;
 
 	private int stepOrder;
@@ -82,7 +90,5 @@ public class ProgramStep {
 		return "ProgramStep [id=" + id + ", program=" + program + ", step=" + step + ", stepOrder=" + stepOrder + ", description=" + description
 				+ "]";
 	}
-	
-	
 	
 }

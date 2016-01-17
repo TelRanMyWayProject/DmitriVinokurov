@@ -19,7 +19,7 @@
         $scope.itemadd = {"id":0,"name":"","possibleValues":""};
 
 		$scope.getTemplate = function (item) {
-	        if (item.id === $scope.itemedit.id && item.name == $scope.itemedit.name) {
+	        if (item.id === $scope.itemedit.id) {
 				return 'edit';
 			}
 	        else {
@@ -44,7 +44,7 @@
 	 			sendJson = item;
 	 			$http({
 					method:'POST',
-					url: "/ImigrationRestServer/fieldnamesedit",
+					url: '/' + window.location.href.split('/')[3] + '/fieldnamesedit',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function(responce) {
@@ -68,7 +68,7 @@
 	 			sendJson = item;
 				$http({
 					method:'POST',
-					url: "/ImigrationRestServer/fieldnamesadd",
+					url: '/' + window.location.href.split('/')[3] + '/fieldnamesadd',
 					data: sendJson,
 					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
 				}).success(function(responce) {
@@ -92,7 +92,10 @@
 
 	});
 </script>
-<style>
+<style type="text/css">
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 </style>
 </head>
 <body>
