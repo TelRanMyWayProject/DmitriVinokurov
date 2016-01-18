@@ -63,6 +63,11 @@ public class ControllerAdmin {
 		return "AdminFirst";
 	}
 
+	// AdminFirst.JSP
+	@RequestMapping("/mainPage")
+	public String getMainGageController() {
+		return "AdminFirst";
+	}
 
 	// Steps.JSP
 	@RequestMapping(value = ImmigrationRepository.STEPS, method = RequestMethod.GET)
