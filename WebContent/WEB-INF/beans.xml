@@ -12,7 +12,7 @@
 <bean 
 class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" 
 />
-<bean class="immigration.repository.immigrationRepository" id="Hibernate"/>
+<!--  bean class="immigration.repository.immigrationRepository" id="Hibernate"/-->
 <bean id="hibernateWeb" class="immigration.repository.HibernateAdmin" />
 
 

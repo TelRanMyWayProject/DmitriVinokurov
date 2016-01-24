@@ -1,5 +1,6 @@
 package immigration.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -115,23 +116,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		return null;
 	}
 
-//	public Iterable<Step> getAllStepsInProgram(Program program) {
-//		if (program != null) {
-//			try {
-//				Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 order by stepOrder");
-//				query.setParameter(1, program.getId());
-//				List<ProgramStep> resList = query.getResultList();
-//				List<Step> stepList = new ArrayList<Step>();
-//				for (ProgramStep ps : resList) {
-//					stepList.add(ps.getStep());
-//				}
-//				return stepList;
-//			}
-//			catch (Exception e) {
-//			}
-//		}
-//		return null;
-//	}
+
 
 	// ProgramStep
 	@Transactional(readOnly = false)
@@ -179,33 +164,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		return -1;
 	}
 
-//	@Transactional(readOnly = false)
-//	public boolean editProgramStep(int id, Program program, Step step, int stepOrder, String description) {
-//		boolean res = false;
-//		if (id > 0) {
-//			ProgramStep programStep = entityManager.find(ProgramStep.class, id);
-//			if (programStep != null) {
-//				if (program != null) {
-//					programStep.setProgram(program);
-//				}
-//				if (step != null) {
-//					programStep.setStep(step);
-//				}
-//				if (stepOrder > 0) {
-//					programStep.setStepOrder(stepOrder);
-//				}
-//				programStep.setDescription(description);
-//				try {
-//					entityManager.merge(programStep);
-//					entityManager.flush();
-//					res = true;
-//				}
-//				catch (Exception e) {
-//				}
-//			}
-//		}
-//		return res;
-//	}
+
 
 	@Transactional(readOnly = false)
 	public int deleteProgramStep(ProgramStep programStep) {
@@ -235,9 +194,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 						result++;
 				}
 			}
-			// Query query = entityManager.createQuery("DELETE programStep FROM ProgramStep programStep WHERE id_program = ?1");
-			// query.setParameter(1, program.getId());
-			// result = query.executeUpdate();
+
 		}
 		return result;
 	}
@@ -462,7 +419,187 @@ public class HibernateAdmin implements ImmigrationRepository {
 		}
 		return result;
 	}
+	public Iterable <Country> getAllCountry(){
+		return entityManager.createQuery("SELECT country FROM Country country").getResultList();
+	}
+	@Override
+	public Iterable <Programs> getProgramsByCountry(int CountryID){
+		Query query=entityManager.createQuery("SELECT prog FROM Programs prog WHERE country_CountryId=:ID");
+		query.setParameter("ID", CountryID);
+		return query.getResultList();
+	}
+	@Override
+	@Transactional(readOnly = false)
+	public Programs addProgram(Map<String, String>  properties,int CountryID) {
+		Country cr=entityManager.find(Country.class, CountryID);
+		Programs prog=new Programs();
+		List<?> list=getProgramFromQuery(CountryID,properties.get("name"));
+		if(list.size()==0){
+			prog.setProperties(properties);
+			prog.setStartProgram(new Date());
+			prog.setModified(new Date());
+			prog.setCountry(cr);
+			entityManager.persist(prog);
+		}else{
+			Programs prg=(Programs)list.get(0);
+			prog.setName("Error");
+			prog.setEnabled((boolean) prg.getProperties().get(Programs.ENABLED));
+		}
+		return prog;
+	}
+	
+	private List<?> getProgramFromQuery(int countryID, String name) {
+		Query query=entityManager.createQuery("SELECT prog FROM Programs prog WHERE country_CountryId=:ID AND name=:ProgName");
+		query.setParameter("ID", countryID);
+		query.setParameter("ProgName", name);
+		return query.getResultList();
+	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public Programs editProgram(Map<String, String>  properties,int id) {
+		Programs pr=entityManager.find(Programs.class, id);
+		List<?> list=getProgramFromQueryEdit(pr.getCountry().getCountryId(),properties.get("name"),properties.get("programId"));
+		if(list.size()==0){
+			pr.setProperties(properties);
+			pr.setModified(new Date());
+			entityManager.merge(pr);
+			return pr;
+		}else{
+			Programs error=new Programs();
+			Programs prg=(Programs)list.get(0);
+			error.setName("Error");
+			error.setEnabled((boolean) prg.getProperties().get(Programs.ENABLED));
+			return error;
+		}
+		
+	}
+	
+	private List<?> getProgramFromQueryEdit(int countryId, String name,
+			String programId) {
+		Query query=entityManager.createQuery("SELECT prog FROM Programs prog WHERE country_CountryId=:ID AND name=:ProgName AND ProgramId!=:ProgId");
+		query.setParameter("ID", countryId);
+		query.setParameter("ProgName", name);
+		query.setParameter("ProgId", Integer.parseInt(programId));
+		return query.getResultList();
+	}
+
+	@Override
+	public Country getCountryById(int countryId) {
+		return entityManager.find(Country.class, countryId);
+	}
+
+	@Override
+	public Programs getProgramById(int ProgId) {
+		return entityManager.find(Programs.class, ProgId);
+	}
+
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Country addCountry(Map<String, String> properties) {
+		String countryName=properties.get("name");
+		List<?> list=chekingCountryName(countryName);
+		if(list.size()==0&&countryName!=""){
+			Country country=new Country();
+			country.setProperties(properties);
+			entityManager.persist(country);
+			return country;
+		}else
+			return null;
+	}
+
+	private List<?> chekingCountryName(String name) {
+		Query query=entityManager.createQuery("SELECT country FROM Country country WHERE name=:CountryName");
+		query.setParameter("CountryName", name);
+		return query.getResultList();
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Country editCountry(Map<String, String> properties, int countryId) {
+		int ind=chekingCountryNameEdit(properties.get("name"),countryId).size();
+		if(ind==0){
+			Country country=entityManager.find(Country.class, countryId);
+			country.setProperties(properties);
+			entityManager.merge(country);
+			return country;
+		}
+		return null;
+	}
+
+	private List<?> chekingCountryNameEdit(String name, int countryId) {
+		Query query=entityManager.createQuery("SELECT country FROM Country country WHERE name=:CountryName AND CountryId!=:Id");
+		query.setParameter("CountryName", name);
+		query.setParameter("Id", countryId);
+		return query.getResultList();
+	}
+
+	@Override
+	public Iterable<Embassy> getEmbassyByCountry(int EmbassyId) {
+		Query query=entityManager.createQuery("SELECT emb FROM Embassy emb WHERE country_CountryId=:ID");
+		query.setParameter("ID", EmbassyId);
+		return query.getResultList();
+	}
+
+	@Override
+	public Embassy getEmbassyById(int EmbassyId) {
+		return entityManager.find(Embassy.class, EmbassyId);
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Embassy addEmbassy(Map<String, String> properties,int CountryID) {
+		Country cr=entityManager.find(Country.class, CountryID);
+		Country location=entityManager.find(Country.class, Integer.parseInt(properties.get("location")));
+		if(cr!=null&&properties.get("phone")!=""){
+			Embassy emb= new Embassy();
+			emb.setProperties(properties);
+			List<?> list=getEmbassyFromQuery(CountryID,emb.getPhone());
+			if(list.size()==0&&location!=null){
+				emb.setCountry(cr);
+				emb.setLocation(location);
+				entityManager.persist(emb);
+				return emb;
+			}
+		}
+		return null;
+			
+		
+	}
+
+	private List<?> getEmbassyFromQuery(int countryID, String phone) {
+		Query query=entityManager.createQuery("SELECT emb FROM Embassy emb WHERE country_CountryId=:ID AND phone=:phoneEmb");
+		query.setParameter("ID", countryID);
+		query.setParameter("phoneEmb", phone);
+		return query.getResultList();
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Embassy editEmbassy(Map<String, String> properties, int EmbassyID) {
+		Embassy emb=entityManager.find(Embassy.class, EmbassyID);
+		Country location=entityManager.find(Country.class, Integer.parseInt(properties.get("location")));
+		List<?> list=getEmbassyFromQueryEdit(emb.getCountry().getCountryId(),properties.get("phone"),EmbassyID);
+		if(list.size()==0){
+			emb.setProperties(properties);
+			if(location!=null)
+			emb.setLocation(location);
+			entityManager.merge(emb);
+			return emb;
+		}else
+			return null;
+	}
+
+	private List<?> getEmbassyFromQueryEdit(int countryId, String phone,
+			int embassyID) {
+		Query query=entityManager.createQuery("SELECT emb FROM Embassy emb WHERE country_CountryId=:ID AND phone=:phoneEmb AND EmbassyID!=:EmbId");
+		query.setParameter("ID", countryId);
+		query.setParameter("phoneEmb", phone);
+		query.setParameter("EmbId", embassyID);
+		return query.getResultList();
+	}
+/*
 	@Override
 	public Iterable<Country> getAllCountry() {
 		// TODO Auto-generated method stub
@@ -541,7 +678,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+*/
 	
 
 }

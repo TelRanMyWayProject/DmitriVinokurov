@@ -2,67 +2,62 @@ package immigration.controller;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import java.util.*;
+import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import com.google.gson.*;
+import com.google.gson.reflect.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import immigration.dao.*;
+import immigration.interfaces.*;
 
-import immigration.dao.FieldNames;
-import immigration.dao.ProgramCustomData;
-import immigration.dao.ProgramStep;
-import immigration.dao.Programs;
-import immigration.dao.Step;
-import immigration.interfaces.ImmigrationRepository;
 
 
 @Controller
+@Scope(value="session")
 @RequestMapping({ "/" })
 public class ControllerAdmin {
 
 	private static final String RESULT = "result";
-
+	private boolean authTrue=false;
+	
 	@Autowired
 	ImmigrationRepository hibernateWeb;
 
 	public Gson createMyGsonWithDateFormat() {
 		return new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-		// return new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").create();
 	}
-
-//	public Gson createMyGsonWithDateFormat(String format) {
-//		Gson gson = null;
-//		if (format != null && format.length() > 0) {
-//			try {
-//				gson = new GsonBuilder().setDateFormat(format).create();
-//			}
-//			catch (Exception e) {
-//				gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-//			}
-//		}
-//		else
-//			gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-//		return gson;
-//	}
-
 
 	// AdminFirst.JSP
-	@RequestMapping("/mainPage")
-	public String getAdminFirstController() {
-		return "AdminFirst";
+	@RequestMapping(value="/checkLogin", method = RequestMethod.POST)
+	public String checkLogin(HttpServletRequest request, HttpServletResponse response) {
+		Enumeration<String> parameters = request.getParameterNames();
+
+		while (parameters.hasMoreElements()) {
+			String parametr = parameters.nextElement(); 
+			if(parametr.equals("name")){
+				String getParametr = request.getParameter(parametr);
+				/*hibernateWeb.;*/
+				
+			}
+		}
+			return ""/*home(model)*/;
 	}
 
+	// .JSP
+		@RequestMapping("/")
+		public String getAdminFirstController() {
+		/*	if(authTrue){*/
+				return "AdminFirst";
+			/*}else{
+				return "login";
+			}*/
+		}
+	
 	// AdminFirst.JSP
 	@RequestMapping("/mainPage")
 	public String getMainGageController() {
@@ -372,5 +367,111 @@ public class ControllerAdmin {
 		}
 
 	}
+	//From Comtr#2
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.COUNTRIES,method=RequestMethod.GET)
+	String getAllCountrys(Model model){
+		return "ListCountrys";
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.LIST_COUNTRIES,method=RequestMethod.GET)
+	@ResponseBody Iterable <Country> GetListCountries(){
+		return hibernateWeb.getAllCountry();
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.COUNTRY,method=RequestMethod.POST)
+	@ResponseBody Country addCountry(@RequestBody LinkedHashMap<String, String> map){
+		Country error=new Country();
+		error.setName("Error");
+		Country cr=hibernateWeb.addCountry(map);
+		if(cr!=null)
+			return cr;
+		else
+			return error;
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.COUNTRY_EDIT,method=RequestMethod.POST)
+	@ResponseBody Country editCountry(@RequestBody LinkedHashMap<String, String> map){
+		Country error=new Country();
+		error.setName("Error");
+		Country cr=hibernateWeb.editCountry(map,Integer.parseInt(map.get("countryId").toString()));
+		if(cr!=null)
+			return cr;
+		else
+			return error;
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.PROGRAMS,method=RequestMethod.GET)
+	String getProgramsByCountryId(int countryId,Model model){
+		Country ctr=hibernateWeb.getCountryById(countryId);
+		if (ctr==null)
+			return this.getAllCountrys(model);
+		model.addAttribute("results", hibernateWeb.getCountryById(countryId));
+		return "ListPrograms";
+	}
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.LIST_PROGRAMS,method=RequestMethod.GET)
+	@ResponseBody Iterable <Programs> GetListPrograms(int countryId){
+		return hibernateWeb.getProgramsByCountry(countryId);
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.PROGRAM,method=RequestMethod.POST)
+	@ResponseBody Programs addProgram(@RequestBody LinkedHashMap<String, String> map){
+		return hibernateWeb.addProgram(map,Integer.parseInt(map.get("countryId").toString()));
+
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.PROGRAM_EDIT,method=RequestMethod.POST)
+	@ResponseBody Programs editProgram(@RequestBody LinkedHashMap<String, String> map){
+		int Id=Integer.parseInt(map.get("programId").toString());
+		return hibernateWeb.editProgram(map,Id);
+
+	}
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.LIST_EMBASSIES,method=RequestMethod.GET)
+	@ResponseBody Iterable<Embassy> GetListEmbassies(int countryId){
+		return hibernateWeb.getEmbassyByCountry(countryId);
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.EMBASSIES,method=RequestMethod.GET)
+	String getEmbassiesByCountryId(int countryId,Model model){
+		Country ctr=hibernateWeb.getCountryById(countryId);
+		if (ctr==null)
+			return this.getAllCountrys(model);	
+		model.addAttribute("results", hibernateWeb.getCountryById(countryId));
+		return "ListEmbassies";
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.EMBASSY,method=RequestMethod.POST)
+	@ResponseBody Embassy addEmbassy(@RequestBody LinkedHashMap<String, String> map){
+		Embassy error=new Embassy();
+		error.setPhone("Error");
+		int CountryId=Integer.parseInt(map.get("countryId"));
+		Embassy emb=hibernateWeb.addEmbassy(map, CountryId);
+		if(emb!=null)
+			return emb;
+		return error;
+	}
+
+	@RequestMapping
+	(value=immigration.interfaces.ImmigrationRepository.EMBASSY_EDIT,method=RequestMethod.POST)
+	@ResponseBody Embassy editEmbassy(@RequestBody LinkedHashMap<String, String> map){
+		Embassy error=new Embassy();
+		error.setPhone("Error");
+		Embassy emb=hibernateWeb.editEmbassy(map, Integer.parseInt(map.get("embassyID").toString()));
+		if(emb!=null)
+			return emb;
+		return error;
+	}
+
 
 }
