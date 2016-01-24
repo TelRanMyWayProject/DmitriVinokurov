@@ -2,10 +2,12 @@ package immigration.interfaces;
 
 import java.util.Map;
 
+import org.springframework.context.annotation.Scope;
+
 import immigration.dao.*;
 
-
 public interface ImmigrationRepository {
+	
 	static final String PROGRAM="/program"; //jsp
 	static final String LIST_PROGRAMS="/list_programs";
 	static final String PROGRAMS="/programs";
@@ -79,6 +81,7 @@ public interface ImmigrationRepository {
 	int deleteAllProgramCustomDataInProgram(Programs program);
 	ProgramCustomData getProgramCustomData(int id);
 	Iterable<ProgramCustomData> getAllProgramCustomDataInProgram(Programs program);
+	boolean checkAdminLogin(String login, String password);
 
 	
 }

@@ -24,7 +24,7 @@ public class ControllerAdmin {
 
 	private static final String RESULT = "result";
 	private boolean authTrue=false;
-	
+
 	@Autowired
 	ImmigrationRepository hibernateWeb;
 
@@ -33,7 +33,7 @@ public class ControllerAdmin {
 	}
 
 	// AdminFirst.JSP
-	@RequestMapping(value="/checkLogin", method = RequestMethod.POST)
+	/*@RequestMapping(value="/checkLogin", method = RequestMethod.POST)
 	public String checkLogin(HttpServletRequest request, HttpServletResponse response) {
 		Enumeration<String> parameters = request.getParameterNames();
 
@@ -41,27 +41,49 @@ public class ControllerAdmin {
 			String parametr = parameters.nextElement(); 
 			if(parametr.equals("name")){
 				String getParametr = request.getParameter(parametr);
-				/*hibernateWeb.;*/
-				
+				hibernateWeb.;
+
 			}
 		}
-			return ""/*home(model)*/;
+			return ""home(model);
 	}
+	 */
+
 
 	// .JSP
-		@RequestMapping("/")
-		public String getAdminFirstController() {
-		/*	if(authTrue){*/
-				return "AdminFirst";
-			/*}else{
-				return "login";
-			}*/
+	@RequestMapping("/")
+	public String getAdminFirstController() {
+		if(authTrue){
+			return "AdminFirst";
+		}else{
+			return "login";
 		}
-	
+	}
+	@RequestMapping(value="/checkLogin",method = RequestMethod.POST)
+	public String checkLogin(HttpServletRequest request, HttpServletResponse response) {
+
+
+		Enumeration<String> parameters = request.getParameterNames();
+		String login="";
+		String password="";
+		while (parameters.hasMoreElements()) {
+			String parametr = parameters.nextElement(); 
+
+			if(parametr.equals("email")){
+				login = request.getParameter(parametr);
+			}
+			if(parametr.equals("pass")){
+				password = request.getParameter(parametr);
+			}
+		}
+
+		authTrue=hibernateWeb.checkAdminLogin(login, password);
+		return authTrue?"AdminFirst":"login";
+	}
 	// AdminFirst.JSP
 	@RequestMapping("/mainPage")
 	public String getMainGageController() {
-		return "AdminFirst";
+		return authTrue?"AdminFirst":"login";
 	}
 
 	// Steps.JSP
@@ -77,7 +99,7 @@ public class ControllerAdmin {
 			// Steps List is empty !!!
 		}
 		model.addAttribute(RESULT, resJson);
-		return "Steps";
+		return authTrue?"Steps":"login";
 	}
 
 	@RequestMapping(value = ImmigrationRepository.STEP_ADD, method = RequestMethod.POST)
@@ -139,7 +161,7 @@ public class ControllerAdmin {
 			// FieldNames List is empty !!!
 		}
 		model.addAttribute(RESULT, resJson);
-		return "FieldNames";
+		return authTrue?"FieldNames":"login";
 	}
 
 	@RequestMapping(value = ImmigrationRepository.FIELDNAMES_ADD, method = RequestMethod.POST)
@@ -206,7 +228,7 @@ public class ControllerAdmin {
 		else {
 			model.addAttribute(RESULT, "Program Error !!!");
 		}
-		return "ProgSteps";
+		return authTrue?"ProgSteps":"login";
 	}
 
 	@RequestMapping(value = ImmigrationRepository.PROGRAMSTEPS_PROGRAM, method = RequestMethod.POST)
@@ -297,7 +319,7 @@ public class ControllerAdmin {
 		else {
 			model.addAttribute(RESULT, "Program Error !!!");
 		}
-		return "ProgCustomData";
+		return authTrue?"ProgCustomData":"login";
 	}
 
 	@RequestMapping(value = ImmigrationRepository.FIELDNAMES_REST, method = RequestMethod.POST)
@@ -372,7 +394,7 @@ public class ControllerAdmin {
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.COUNTRIES,method=RequestMethod.GET)
 	String getAllCountrys(Model model){
-		return "ListCountrys";
+		return authTrue?"ListCountrys":"login";
 	}
 
 	@RequestMapping
@@ -384,13 +406,16 @@ public class ControllerAdmin {
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.COUNTRY,method=RequestMethod.POST)
 	@ResponseBody Country addCountry(@RequestBody LinkedHashMap<String, String> map){
+
 		Country error=new Country();
 		error.setName("Error");
-		Country cr=hibernateWeb.addCountry(map);
-		if(cr!=null)
-			return cr;
-		else
-			return error;
+		if(authTrue){
+			Country cr=hibernateWeb.addCountry(map);
+			if(cr!=null)
+				return cr;
+			else
+				return error;
+		}else return error;
 	}
 
 	@RequestMapping
@@ -398,11 +423,13 @@ public class ControllerAdmin {
 	@ResponseBody Country editCountry(@RequestBody LinkedHashMap<String, String> map){
 		Country error=new Country();
 		error.setName("Error");
-		Country cr=hibernateWeb.editCountry(map,Integer.parseInt(map.get("countryId").toString()));
-		if(cr!=null)
-			return cr;
-		else
-			return error;
+		if(authTrue){
+			Country cr=hibernateWeb.editCountry(map,Integer.parseInt(map.get("countryId").toString()));
+			if(cr!=null)
+				return cr;
+			else
+				return error;
+		}else return error;
 	}
 
 	@RequestMapping
@@ -412,12 +439,14 @@ public class ControllerAdmin {
 		if (ctr==null)
 			return this.getAllCountrys(model);
 		model.addAttribute("results", hibernateWeb.getCountryById(countryId));
-		return "ListPrograms";
+		return  authTrue?"ListPrograms":"login";
 	}
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.LIST_PROGRAMS,method=RequestMethod.GET)
 	@ResponseBody Iterable <Programs> GetListPrograms(int countryId){
-		return hibernateWeb.getProgramsByCountry(countryId);
+		if(authTrue){
+			return hibernateWeb.getProgramsByCountry(countryId);
+		}else return null;
 	}
 
 	@RequestMapping
@@ -430,14 +459,18 @@ public class ControllerAdmin {
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.PROGRAM_EDIT,method=RequestMethod.POST)
 	@ResponseBody Programs editProgram(@RequestBody LinkedHashMap<String, String> map){
-		int Id=Integer.parseInt(map.get("programId").toString());
-		return hibernateWeb.editProgram(map,Id);
+		if(authTrue){
+			int Id=Integer.parseInt(map.get("programId").toString());
+			return hibernateWeb.editProgram(map,Id);
+		}else return null;
 
 	}
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.LIST_EMBASSIES,method=RequestMethod.GET)
 	@ResponseBody Iterable<Embassy> GetListEmbassies(int countryId){
-		return hibernateWeb.getEmbassyByCountry(countryId);
+		if(authTrue){
+			return hibernateWeb.getEmbassyByCountry(countryId);
+		}else return null;	
 	}
 
 	@RequestMapping
@@ -447,7 +480,8 @@ public class ControllerAdmin {
 		if (ctr==null)
 			return this.getAllCountrys(model);	
 		model.addAttribute("results", hibernateWeb.getCountryById(countryId));
-		return "ListEmbassies";
+		return  authTrue?"ListEmbassies":"login";
+		//return "ListEmbassies";
 	}
 
 	@RequestMapping
@@ -455,11 +489,13 @@ public class ControllerAdmin {
 	@ResponseBody Embassy addEmbassy(@RequestBody LinkedHashMap<String, String> map){
 		Embassy error=new Embassy();
 		error.setPhone("Error");
-		int CountryId=Integer.parseInt(map.get("countryId"));
-		Embassy emb=hibernateWeb.addEmbassy(map, CountryId);
-		if(emb!=null)
-			return emb;
-		return error;
+		if(authTrue){
+			int CountryId=Integer.parseInt(map.get("countryId"));
+			Embassy emb=hibernateWeb.addEmbassy(map, CountryId);
+			if(emb!=null)
+				return emb;
+			return error;
+		}else return error;
 	}
 
 	@RequestMapping
@@ -467,10 +503,12 @@ public class ControllerAdmin {
 	@ResponseBody Embassy editEmbassy(@RequestBody LinkedHashMap<String, String> map){
 		Embassy error=new Embassy();
 		error.setPhone("Error");
-		Embassy emb=hibernateWeb.editEmbassy(map, Integer.parseInt(map.get("embassyID").toString()));
-		if(emb!=null)
-			return emb;
-		return error;
+		if(authTrue){
+			Embassy emb=hibernateWeb.editEmbassy(map, Integer.parseInt(map.get("embassyID").toString()));
+			if(emb!=null)
+				return emb;
+			return error;
+		}else return error;
 	}
 
 

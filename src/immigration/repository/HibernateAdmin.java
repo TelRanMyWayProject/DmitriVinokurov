@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -25,7 +26,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@PersistenceContext(unitName = "springHibernate")
 	EntityManager entityManager;
 
-	
+
 	// Step
 	@Transactional(readOnly = false)
 	public int addStep(Step step) {
@@ -447,7 +448,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		}
 		return prog;
 	}
-	
+
 	private List<?> getProgramFromQuery(int countryID, String name) {
 		Query query=entityManager.createQuery("SELECT prog FROM Programs prog WHERE country_CountryId=:ID AND name=:ProgName");
 		query.setParameter("ID", countryID);
@@ -472,9 +473,9 @@ public class HibernateAdmin implements ImmigrationRepository {
 			error.setEnabled((boolean) prg.getProperties().get(Programs.ENABLED));
 			return error;
 		}
-		
+
 	}
-	
+
 	private List<?> getProgramFromQueryEdit(int countryId, String name,
 			String programId) {
 		Query query=entityManager.createQuery("SELECT prog FROM Programs prog WHERE country_CountryId=:ID AND name=:ProgName AND ProgramId!=:ProgId");
@@ -494,7 +495,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		return entityManager.find(Programs.class, ProgId);
 	}
 
-	
+
 	@Override
 	@Transactional(readOnly = false)
 	public Country addCountry(Map<String, String> properties) {
@@ -564,8 +565,8 @@ public class HibernateAdmin implements ImmigrationRepository {
 			}
 		}
 		return null;
-			
-		
+
+
 	}
 
 	private List<?> getEmbassyFromQuery(int countryID, String phone) {
@@ -584,7 +585,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		if(list.size()==0){
 			emb.setProperties(properties);
 			if(location!=null)
-			emb.setLocation(location);
+				emb.setLocation(location);
 			entityManager.merge(emb);
 			return emb;
 		}else
@@ -599,86 +600,23 @@ public class HibernateAdmin implements ImmigrationRepository {
 		query.setParameter("EmbId", embassyID);
 		return query.getResultList();
 	}
-/*
-	@Override
-	public Iterable<Country> getAllCountry() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
-	public Country getCountryById(int countryId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Country addCountry(Map<String, String> properties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Country editCountry(Map<String, String> properties, int countryId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterable<Programs> getProgramsByCountry(int CountryID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Programs getProgramById(int ProgId) {
-		Programs program = null;
-		if (ProgId > 0) {
-			try {
-				program = entityManager.find(Programs.class, ProgId);
+	public boolean checkAdminLogin(String login, String password) {
+		try{
+			Query query=entityManager.createQuery("SELECT prs.password FROM Person prs WHERE email=:email");
+			query.setParameter("email", login);
+			String res = (String)query.getSingleResult();
+			if(res.equals(password)){
+				return true;
 			}
-			catch (Exception e) {
-			}
+		} catch(NoResultException e) {
+			return false;
 		}
-		return program;
+		return false;
+		
 	}
 
-	@Override
-	public Programs addProgram(Map<String, String> properties, int CountryID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Programs editProgram(Map<String, String> properties, int idProgram) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterable<Embassy> getEmbassyByCountry(int EmbassyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Embassy getEmbassyById(int EmbassyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Embassy addEmbassy(Map<String, String> properties, int CountryID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Embassy editEmbassy(Map<String, String> properties, int EmbassyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-*/
-	
 
 }
