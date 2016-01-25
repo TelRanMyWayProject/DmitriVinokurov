@@ -419,9 +419,11 @@ public class HibernateAdmin implements ImmigrationRepository {
 		}
 		return result;
 	}
+	@SuppressWarnings("unchecked")
 	public Iterable <Country> getAllCountry(){
 		return entityManager.createQuery("SELECT country FROM Country country").getResultList();
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public Iterable <Programs> getProgramsByCountry(int CountryID){
 		Query query=entityManager.createQuery("SELECT prog FROM Programs prog WHERE country_CountryId=:ID");
@@ -498,6 +500,8 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@Override
 	@Transactional(readOnly = false)
 	public Country addCountry(Map<String, String> properties) {
+		Country error=new Country();
+		error.setName("Error");
 		String countryName=properties.get("name");
 		List<?> list=chekingCountryName(countryName);
 		if(list.size()==0&&countryName!=""){
@@ -506,7 +510,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 			entityManager.persist(country);
 			return country;
 		}else
-			return null;
+			return error;
 	}
 
 	private List<?> chekingCountryName(String name) {
@@ -518,6 +522,8 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@Override
 	@Transactional(readOnly = false)
 	public Country editCountry(Map<String, String> properties, int countryId) {
+		Country error=new Country();
+		error.setName("Error");
 		int ind=chekingCountryNameEdit(properties.get("name"),countryId).size();
 		if(ind==0){
 			Country country=entityManager.find(Country.class, countryId);
@@ -525,7 +531,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 			entityManager.merge(country);
 			return country;
 		}
-		return null;
+		return error;
 	}
 
 	private List<?> chekingCountryNameEdit(String name, int countryId) {
@@ -535,6 +541,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		return query.getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Iterable<Embassy> getEmbassyByCountry(int EmbassyId) {
 		Query query=entityManager.createQuery("SELECT emb FROM Embassy emb WHERE country_CountryId=:ID");
@@ -550,6 +557,8 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@Override
 	@Transactional(readOnly = false)
 	public Embassy addEmbassy(Map<String, String> properties,int CountryID) {
+		Embassy error=new Embassy();
+		error.setPhone("Error");
 		Country cr=entityManager.find(Country.class, CountryID);
 		Country location=entityManager.find(Country.class, Integer.parseInt(properties.get("location")));
 		if(cr!=null&&properties.get("phone")!=""){
@@ -563,7 +572,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 				return emb;
 			}
 		}
-		return null;
+		return error;
 			
 		
 	}
@@ -578,6 +587,8 @@ public class HibernateAdmin implements ImmigrationRepository {
 	@Override
 	@Transactional(readOnly = false)
 	public Embassy editEmbassy(Map<String, String> properties, int EmbassyID) {
+		Embassy error=new Embassy();
+		error.setPhone("Error");
 		Embassy emb=entityManager.find(Embassy.class, EmbassyID);
 		Country location=entityManager.find(Country.class, Integer.parseInt(properties.get("location")));
 		List<?> list=getEmbassyFromQueryEdit(emb.getCountry().getCountryId(),properties.get("phone"),EmbassyID);
@@ -588,7 +599,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 			entityManager.merge(emb);
 			return emb;
 		}else
-			return null;
+			return error;
 	}
 
 	private List<?> getEmbassyFromQueryEdit(int countryId, String phone,
@@ -599,86 +610,6 @@ public class HibernateAdmin implements ImmigrationRepository {
 		query.setParameter("EmbId", embassyID);
 		return query.getResultList();
 	}
-/*
-	@Override
-	public Iterable<Country> getAllCountry() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public Country getCountryById(int countryId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Country addCountry(Map<String, String> properties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Country editCountry(Map<String, String> properties, int countryId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterable<Programs> getProgramsByCountry(int CountryID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Programs getProgramById(int ProgId) {
-		Programs program = null;
-		if (ProgId > 0) {
-			try {
-				program = entityManager.find(Programs.class, ProgId);
-			}
-			catch (Exception e) {
-			}
-		}
-		return program;
-	}
-
-	@Override
-	public Programs addProgram(Map<String, String> properties, int CountryID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Programs editProgram(Map<String, String> properties, int idProgram) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterable<Embassy> getEmbassyByCountry(int EmbassyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Embassy getEmbassyById(int EmbassyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Embassy addEmbassy(Map<String, String> properties, int CountryID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Embassy editEmbassy(Map<String, String> properties, int EmbassyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-*/
-	
 
 }

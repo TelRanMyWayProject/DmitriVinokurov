@@ -384,25 +384,14 @@ public class ControllerAdmin {
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.COUNTRY,method=RequestMethod.POST)
 	@ResponseBody Country addCountry(@RequestBody LinkedHashMap<String, String> map){
-		Country error=new Country();
-		error.setName("Error");
-		Country cr=hibernateWeb.addCountry(map);
-		if(cr!=null)
-			return cr;
-		else
-			return error;
+		return hibernateWeb.addCountry(map);
 	}
 
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.COUNTRY_EDIT,method=RequestMethod.POST)
 	@ResponseBody Country editCountry(@RequestBody LinkedHashMap<String, String> map){
-		Country error=new Country();
-		error.setName("Error");
-		Country cr=hibernateWeb.editCountry(map,Integer.parseInt(map.get("countryId").toString()));
-		if(cr!=null)
-			return cr;
-		else
-			return error;
+		return hibernateWeb.editCountry(map,Integer.parseInt(map.get("countryId").toString()));
+		
 	}
 
 	@RequestMapping
@@ -453,24 +442,13 @@ public class ControllerAdmin {
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.EMBASSY,method=RequestMethod.POST)
 	@ResponseBody Embassy addEmbassy(@RequestBody LinkedHashMap<String, String> map){
-		Embassy error=new Embassy();
-		error.setPhone("Error");
-		int CountryId=Integer.parseInt(map.get("countryId"));
-		Embassy emb=hibernateWeb.addEmbassy(map, CountryId);
-		if(emb!=null)
-			return emb;
-		return error;
+		return hibernateWeb.addEmbassy(map, Integer.parseInt(map.get("countryId")));
 	}
 
 	@RequestMapping
 	(value=immigration.interfaces.ImmigrationRepository.EMBASSY_EDIT,method=RequestMethod.POST)
 	@ResponseBody Embassy editEmbassy(@RequestBody LinkedHashMap<String, String> map){
-		Embassy error=new Embassy();
-		error.setPhone("Error");
-		Embassy emb=hibernateWeb.editEmbassy(map, Integer.parseInt(map.get("embassyID").toString()));
-		if(emb!=null)
-			return emb;
-		return error;
+		return hibernateWeb.editEmbassy(map, Integer.parseInt(map.get("embassyID").toString()));
 	}
 
 
