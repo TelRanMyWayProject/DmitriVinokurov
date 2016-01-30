@@ -1,14 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=windows-1255" pageEncoding="windows-1255"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en" data-ng-app="ProgStepsApp">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1255">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Program Steps</title>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 <link href="<c:url value='/static/css/bootstrap.min.css' />" rel="stylesheet"></link>
 <link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
+<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 
 <script>
 	angular.module('ProgStepsApp', ['filters'])
@@ -19,6 +19,7 @@
 		$scope.prsteps = jsonRes.programsteps;
 		$scope.program = jsonRes.program;
 		$scope.itemedit = {};
+		$scope.itemedit_orig = {};
 		if ($scope.prsteps.length == 0) {
 			$scope.prsteps = [];
 			document.getElementById("viewnosteps").style.visibility = "visible";
@@ -62,7 +63,7 @@
 		$scope.addStepToProgram = function(step) {
 			document.getElementById("viewstepadd").style.visibility = "hidden";
 			if (step.id != 0) {
-				$scope.prsteps.push({"id":"0", "program": $scope.program, "step": step, "stepOrder": 99, "description": step.description})
+				$scope.prsteps.push({"id":"0", "program": $scope.program, "step": step, "stepOrder": 99, "description": step.description, "fileName": ""})
 			}
 			if ($scope.prsteps.length == 0) {
 				document.getElementById("viewnosteps").style.visibility = "visible";
@@ -76,6 +77,9 @@
 			document.getElementById("viewstepadd").style.visibility = "hidden";
 			if ($scope.prsteps.length > 0) {
 				document.getElementById("viewnosteps").style.visibility = "hidden";
+				for (var i = 0; i< $scope.prsteps.length; i++) {
+					$scope.prsteps[i].id = 0;
+				}
 	 			sendJson = $scope.prsteps;
 				$http({
 					method:'POST',
@@ -133,25 +137,33 @@
 		
 		$scope.resetItem = function () {
 	        $scope.itemedit = {};
+			$scope.itemedit_orig = {};
 	    };
 		
 		$scope.editItem = function (item) {
 			document.getElementById("viewstepadd").style.visibility = "hidden";
 			$scope.resetItem();
 	        $scope.itemedit = angular.copy(item);
+	        $scope.itemedit_orig = angular.copy(item);
 	    };
 		
 		$scope.updateItem = function(item) {
 			document.getElementById("viewstepadd").style.visibility = "hidden";
 			if (item.value != "") {
-				for (var i = 0; i< $scope.prsteps.length; i++) {
-					if ($scope.prsteps[i].step.name == item.step.name) {
-						$scope.prsteps[i].stepOrder = item.stepOrder;
-						$scope.prsteps[i].description = item.description;
-						break;
+				if (!angular.equals(item, $scope.itemedit_orig)) {
+					for (var i = 0; i< $scope.prsteps.length; i++) {
+						if ($scope.prsteps[i].step.name == item.step.name) {
+							$scope.prsteps[i].stepOrder = item.stepOrder;
+							$scope.prsteps[i].description = item.description;
+							$scope.prsteps[i].fileName = item.fileName;
+							break;
+						}
 					}
+					$scope.resetItem();
 				}
-				$scope.resetItem();
+				else {
+					alert("You do not change anything !");
+				}
 			}
 		}
  		
@@ -192,27 +204,32 @@
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+th {
+	text-align:center;
+}
 </style>
 </head>
 <body>
 	<div class="panel-body" data-ng-controller="ProgStepsCtrl">
-		<div class="col-xs-5" id="steps">
+		<div class="col-xs-6" id="steps">
 			<label>Country: {{program.country.name}}</label><br/>
 			<label>Steps in program: {{program.name}}</label><br/>
 			<p id="viewnosteps" style="visibility:hidden;">Selected program don't have steps</p>
 			<table class="table table-bordered table-hover table-condensed">
 		        <colgroup>
-          			<col class="col-xs-3"/>
-          			<col class="col-xs-5"/>
-          			<col class="col-xs-2"/>
-          			<col class="col-xs-1"/>
-          			<col class="col-xs-1"/>
+       		  		<col width="25%"/>
+       		  		<col width="35%"/>
+       		  		<col width="10%"/>
+       		  		<col width="24%"/>
+       		  		<col width="3%"/>
+       		  		<col width="3%"/>
         		</colgroup>
 				<thead>
 					<th>Name</th>
 					<th>Description</th>
 					<th>Order</th>
-					<th style="text-align:center" colspan="2">Actions</th>
+					<th>File Name</th>
+					<th colspan="2">Actions</th>
 				</thead>
 				<tbody>
 					<tr ng-repeat="item in prsteps | orderBy : 'stepOrder'" ng-include="getTemplate(item)">
@@ -220,13 +237,15 @@
 							<td>{{item.step.name}}</td>
 							<td>{{item.description | strLimit : 30}}</td>
 							<td>{{item.stepOrder}}</td>
+							<td>{{item.fileName}}</td>
 							<td><button type="button" class="btn btn-primary" ng-click="editItem(item)"><span class="glyphicon glyphicon-pencil"></button></td>
 							<td><button type="button" class="btn btn-default" ng-click="deleteItem(item)"><span class="glyphicon glyphicon-trash"></button></td>
 						</script>
 						<script type="text/ng-template" id="edit">
 							<td>{{item.step.name}}</td>
-							<td><input type="text" ng-model=itemedit.description class="form-control input-sm" required/></td>
+							<td><input type="text" ng-model=itemedit.description class="form-control input-sm"/></td>
 							<td><input type="number" ng-model=itemedit.stepOrder class="form-control input-sm" required/></td>
+							<td><input type="text" ng-model=itemedit.fileName class="form-control input-sm"/></td>
 							<td><button type="button" class="btn btn-primary" ng-click="updateItem(itemedit)"><span class="glyphicon glyphicon-ok"></button></td>
 							<td><button type="button" class="btn btn-default" ng-click="resetItem()"><span class="glyphicon glyphicon-remove"></button></td>
 						</script>
@@ -234,11 +253,11 @@
 				</tbody>
 			</table>
 			<div id="stepsctrl" class="col-xs-12">
-				<button class="btn btn-primary" ng-click="addStep()">Add Step to Program</button>
+				<button id="stepadd" class="btn btn-primary" ng-click="addStep()">Add Step to Program</button>
 				<button class="btn btn-info" ng-click="saveSteps()">Save Steps</button>
 				<button class="btn btn-primary" ng-click="revertEdit()">Revert</button>
 			</div>
-			<div id="viewstepadd" style="visibility:hidden;" class="col-xs-7 form-group">
+			<div id="viewstepadd" style="visibility:hidden;" class="col-xs-4 form-group">
 				<label>Select step to add:</label><br/>
 				<select class="form-control" ng-change="addStepToProgram(stepsadd.selected)" ng-model="stepsadd.selected" ng-options="ss.name for ss in stepsadd track by ss.id" ></select>
 			</div>

@@ -2,7 +2,13 @@ package immigration.interfaces;
 
 import java.util.Map;
 
-import immigration.dao.*;
+import immigration.dao.Country;
+import immigration.dao.Embassy;
+import immigration.dao.FieldNames;
+import immigration.dao.ProgramCustomData;
+import immigration.dao.ProgramStep;
+import immigration.dao.Programs;
+import immigration.dao.Step;
 
 
 public interface ImmigrationRepository {
@@ -25,17 +31,17 @@ public interface ImmigrationRepository {
 	static final String STEP_ADD = "/stepadd";
 	static final String STEP_EDIT = "/stepedit";
 
-	static final String FIELDNAMES = "/fieldnames"; // JSP for Dima
+	static final String FIELDNAMES = "/fieldnames"; // JSP
 	static final String FIELDNAMES_ADD = "/fieldnamesadd";
 	static final String FIELDNAMES_EDIT = "/fieldnamesedit";
 
-	static final String PROG_STEPS = "/progsteps"; // JSP for Dima
+	static final String PROG_STEPS = "/progsteps"; // JSP
 	static final String STEPS_REST = "/stepsrest";
 	static final String PROGRAMSTEPS_PROGRAM = "/programstepsofprogram";
 	static final String PROGRAMSTEPS_PROGRAM_SAVE = "/programstepsofprogramsave";
 	static final String PROGRAMSTEPS_PROGRAM_DELETE = "/programstepsofprogramdelete";
 
-	static final String PROG_CUSTDATA = "/progcustdata"; // JSP for Dima
+	static final String PROG_CUSTDATA = "/progcustdata"; // JSP
 	static final String FIELDNAMES_REST = "/fieldnamesrest";
 	static final String PROGRAMCUSTDATA_PROGRAM = "/programcustdatasofprogram";
 	static final String PROGRAMCUSTDATA_PROGRAM_SAVE = "/programcustdataofprogramsave";
@@ -57,27 +63,21 @@ public interface ImmigrationRepository {
 	public Embassy editEmbassy(Map<String, String>  properties,int EmbassyId);
 	
 	int addStep(Step step);
-	int addStep(String name, String description);
-	boolean editStep(int id, String name, String description);
+	boolean editStep(Step step);
 	Step getStep(int id);
 	Iterable<Step> getAllSteps();
 
-	int addProgramStep(ProgramStep programStep);
-	int addProgramStep(Programs program, Step step, int stepOrder, String description);
-	int deleteAllProgramStepsInProgram(Programs program);
-	ProgramStep getProgramStep(int id);
-	Iterable<ProgramStep> getAllProgramStepsInProgram(Programs program);
-
 	int addFieldNames(FieldNames fieldNames);
-	int addFieldNames(String name, String possibleValues);
-	boolean editFieldNames(int id, String name, String possibleValues);
+	boolean editFieldNames(FieldNames fieldNames);
 	FieldNames getFieldNames(int id);
 	Iterable<FieldNames> getAllFieldNames();
 
+	int addProgramStep(ProgramStep programStep);
+	int deleteAllProgramStepsInProgram(Programs program);
+	Iterable<ProgramStep> getAllProgramStepsInProgram(Programs program);
+
 	int addProgramCustomData(ProgramCustomData programCustomData);
-	int addProgramCustomData(Programs program, FieldNames fieldNames, String value);
 	int deleteAllProgramCustomDataInProgram(Programs program);
-	ProgramCustomData getProgramCustomData(int id);
 	Iterable<ProgramCustomData> getAllProgramCustomDataInProgram(Programs program);
 
 	

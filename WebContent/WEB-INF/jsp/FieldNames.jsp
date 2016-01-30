@@ -1,14 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=windows-1255" pageEncoding="windows-1255"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en" data-ng-app="FieldNamesApp">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1255">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>FieldNames</title>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 <link href="<c:url value='/static/css/bootstrap.min.css' />" rel="stylesheet"></link>
 <link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
+<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 
 <script>
 	angular.module('FieldNamesApp', [])
@@ -16,6 +16,7 @@
 		var jsonRes = JSON.parse('${result}');
 		$scope.itemsAll = jsonRes;
 		$scope.itemedit = {};
+		$scope.itemedit_orig = {};
         $scope.itemadd = {"id":0,"name":"","possibleValues":""};
 
 		$scope.getTemplate = function (item) {
@@ -29,6 +30,7 @@
 		
 		$scope.resetItem = function () {
 	        $scope.itemedit = {};
+			$scope.itemedit_orig = {};
 	    };
 		
 		$scope.resetAddItem = function () {
@@ -37,53 +39,79 @@
 		
 		$scope.editItem = function (item) {
 	        $scope.itemedit = angular.copy(item);
+	        $scope.itemedit_orig = angular.copy(item);
 	    };
 		
 		$scope.updateItem = function(item) {
 			if (item.name != "") {
-	 			sendJson = item;
-	 			$http({
-					method:'POST',
-					url: '/' + window.location.href.split('/')[3] + '/fieldnamesedit',
-					data: sendJson,
-					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
-				}).success(function(responce) {
-					// console.log(responce);
-					$scope.resetItem();
+				if (!angular.equals(item, $scope.itemedit_orig)) {
+					flag = true;
 					for (var i = 0; i< $scope.itemsAll.length; i++) {
-						if ($scope.itemsAll[i].id == responce.id) {
-							$scope.itemsAll[i].name = responce.name;
-							$scope.itemsAll[i].possibleValues = responce.possibleValues;
+						if ($scope.itemsAll[i].name == item.name && $scope.itemsAll[i].id != item.id) {
+							flag = false;
+							alert("The Field name is already exist !");
 							break;
 						}
 					}
-				}).error(function(responce) {
-					// console.log("Error updating");
-				});
+					if (flag) {
+			 			sendJson = item;
+			 			$http({
+							method:'POST',
+							url: '/' + window.location.href.split('/')[3] + '/fieldnamesedit',
+							data: sendJson,
+							headers:{'Content-Type' :'application/x-www-form-urlencoded'}
+						}).success(function(responce) {
+							// console.log(responce);
+							$scope.resetItem();
+							for (var i = 0; i< $scope.itemsAll.length; i++) {
+								if ($scope.itemsAll[i].id == responce.id) {
+									$scope.itemsAll[i].name = responce.name;
+									$scope.itemsAll[i].possibleValues = responce.possibleValues;
+									break;
+								}
+							}
+						}).error(function(responce) {
+							alert("Error updating field name !");
+							// console.log("Error updating");
+						});
+					}
+				}
+				else {
+					alert("You do not change anything !");
+				}
 			}
 		}
 		
 		$scope.addItem = function(item) {
 			if (item.name != "") {
-	 			sendJson = item;
-				$http({
-					method:'POST',
-					url: '/' + window.location.href.split('/')[3] + '/fieldnamesadd',
-					data: sendJson,
-					headers:{'Content-Type' :'application/x-www-form-urlencoded'}
-				}).success(function(responce) {
-					if (responce.length != 0) {
-						if (responce.id > 0) {
-							$scope.itemsAll.push(responce);
-							$scope.itemadd.id = 0;
-							$scope.itemadd.name = "";
-							$scope.itemadd.possibleValues = "";
+				flag = true;
+				for (var i = 0; i< $scope.itemsAll.length; i++) {
+					if ($scope.itemsAll[i].name == item.name) {
+						flag = false;
+						alert("The Field name is already exist !");
+						break;
+					}
+				}
+				if (flag) {
+		 			sendJson = item;
+					$http({
+						method:'POST',
+						url: '/' + window.location.href.split('/')[3] + '/fieldnamesadd',
+						data: sendJson,
+						headers:{'Content-Type' :'application/x-www-form-urlencoded'}
+					}).success(function(responce) {
+						if (responce.length != 0) {
+							if (responce.id > 0) {
+								$scope.itemsAll.push(responce);
+								$scope.resetAddItem();
+							}
 						}
-					}
-					else {
-					}
-				}).error(function(responce) {
-				});
+						else {
+						}
+					}).error(function(responce) {
+						alert("Error adding field name !");
+					});
+				}
 			}
 		}
 
@@ -96,18 +124,21 @@
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+th {
+	text-align:center;
+}
 </style>
 </head>
 <body>
 	<div class="panel-body" data-ng-controller="FieldNamesAppCtrl">
-		<div class="col-xs-4 form-group">
+		<div class="col-xs-5 form-group">
 			<label>List FieldNames</label>
 			<table class="table table-bordered table-hover table-condensed">
 		        <colgroup>
-          			<col class="col-xs-4"/>
-          			<col class="col-xs-6"/>
-          			<col class="col-xs-1"/>
-          			<col class="col-xs-1"/>
+       		  		<col width="40%"/>
+       		  		<col width="50%"/>
+       		  		<col width="5%"/>
+       		  		<col width="5%"/>
         		</colgroup>
 				<thead>
 					<th>Name</th>

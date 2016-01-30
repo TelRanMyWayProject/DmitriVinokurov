@@ -1,14 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=windows-1255" pageEncoding="windows-1255"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en" data-ng-app="ProgCustDataApp">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1255">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Program Custom Data</title>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 <link href="<c:url value='/static/css/bootstrap.min.css' />" rel="stylesheet"></link>
 <link href="<c:url value='/static/css/bootstrap-theme.min.css' />" rel="stylesheet"></link>
+<script language="javascript" type="text/javascript" src="<c:url value='/static/js/angular.min.js' />" /></script>
 
 <script>
 	angular.module('ProgCustDataApp', [])
@@ -19,6 +19,7 @@
 		$scope.prcustdata = jsonRes.programcustdata;
 		$scope.program = jsonRes.program;
 		$scope.itemedit = {};
+		$scope.itemedit_orig = {};
 		if ($scope.prcustdata.length == 0) {
 			$scope.prcustdata = [];
 			document.getElementById("viewnocustdata").style.visibility = "visible";
@@ -76,6 +77,9 @@
 			document.getElementById("viewcustdataadd").style.visibility = "hidden";
 			if ($scope.prcustdata.length > 0) {
 				document.getElementById("viewnocustdata").style.visibility = "hidden";
+				for (var i = 0; i< $scope.prcustdata.length; i++) {
+					$scope.prcustdata[i].id = 0;
+				}
 	 			sendJson = $scope.prcustdata;
 				$http({
 					method:'POST',
@@ -122,7 +126,6 @@
 		}
 
 
-		
 		$scope.getTemplate = function (item) {
 			if (item.id === $scope.itemedit.id && item.fieldNames.name == $scope.itemedit.fieldNames.name) {
 				return 'edit';
@@ -134,24 +137,31 @@
 		
 		$scope.resetItem = function () {
 	        $scope.itemedit = {};
+			$scope.itemedit_orig = {};
 	    };
 		
 		$scope.editItem = function (item) {
 			document.getElementById("viewcustdataadd").style.visibility = "hidden";
 			$scope.resetItem();
 	        $scope.itemedit = angular.copy(item);
+	        $scope.itemedit_orig = angular.copy(item);
 	    };
 		
 		$scope.updateItem = function(item) {
 			document.getElementById("viewcustdataadd").style.visibility = "hidden";
 			if (item.value != "") {
-				for (var i = 0; i< $scope.prcustdata.length; i++) {
-					if ($scope.prcustdata[i].fieldNames.name == item.fieldNames.name) {
-						$scope.prcustdata[i].value = item.value;
-						break;
+				if (!angular.equals(item, $scope.itemedit_orig)) {
+					for (var i = 0; i< $scope.prcustdata.length; i++) {
+						if ($scope.prcustdata[i].fieldNames.name == item.fieldNames.name) {
+							$scope.prcustdata[i].value = item.value;
+							break;
+						}
 					}
+					$scope.resetItem();
 				}
-				$scope.resetItem();
+				else {
+					alert("You do not change anything !");
+				}
 			}
 		}
  		
@@ -177,26 +187,29 @@
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+th {
+	text-align:center;
+}
 </style>
 </head>
 <body>
 	<div class="panel-body" data-ng-controller="ProgCustDataCtrl">
-		<div class="col-xs-5" id="customdata">
+		<div class="col-xs-6" id="customdata">
 			<label>Country: {{program.country.name}}</label><br/>
 			<label>Custom data in program: {{program.name}}</label><br/>
 			<p id="viewnocustdata" style="visibility:hidden;">Selected program don't have custom data</p>
 			<table class="table table-bordered table-hover table-condensed">
 		        <colgroup>
-          			<col class="col-xs-4"/>
-          			<col class="col-xs-6"/>
-          			<col class="col-xs-1"/>
-          			<col class="col-xs-1"/>
+       		  		<col width="40%"/>
+       		  		<col width="50%"/>
+       		  		<col width="5%"/>
+       		  		<col width="5%"/>
         		</colgroup>
 				<thead>
 					<tr>
 						<th>Name</th>
 						<th>Value</th>
-						<th style="text-align:center" colspan="2">Actions</th>
+						<th colspan="2">Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -217,11 +230,11 @@
 				</tbody>
 			</table>
 			<div id="stepsctrl" class="col-xs-12">
-				<button class="btn btn-primary" ng-click="addCustData()">Add Custom Data to Program</button>
+				<button id="custdataadd" class="btn btn-primary" ng-click="addCustData()">Add Custom Data to Program</button>
 				<button class="btn btn-info" ng-click="saveCustData()">Save Custom Data</button>
 				<button class="btn btn-primary" ng-click="revertEdit()">Revert</button>
 			</div>
-			<div id="viewcustdataadd" style="visibility:hidden;" class="col-xs-7 form-group">
+			<div id="viewcustdataadd" style="visibility:hidden;" class="col-xs-4 form-group">
 				<label>Select custom data to add:</label><br/>
 				<select class="form-control" ng-change="addCustDataToProgram(cdadd.selected)" ng-model="cdadd.selected" ng-options="cd.name for cd in cdadd track by cd.id" ></select>
 			</div>

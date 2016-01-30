@@ -28,8 +28,8 @@ public class ProgramStep {
 	private Step step;
 
 	private int stepOrder;
-
 	private String description;
+	private String fileName;
 
 	public ProgramStep() {
 	}
@@ -39,18 +39,15 @@ public class ProgramStep {
 		this.step = step;
 	}
 
-	public ProgramStep(Programs program, Step step, int stepOrder, String description) {
+	public ProgramStep(Programs program, Step step, int stepOrder, String description, String fileName) {
 		this.program = program;
 		this.step = step;
 		this.stepOrder = stepOrder;
+		this.fileName = fileName;
 	}
 
 	public int getId() {
 		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public Programs getProgram() {
@@ -85,10 +82,18 @@ public class ProgramStep {
 		this.description = description;
 	}
 
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
 	@Override
 	public String toString() {
 		return "ProgramStep [id=" + id + ", program=" + program + ", step=" + step + ", stepOrder=" + stepOrder + ", description=" + description
-				+ "]";
+				+ ", fileName=" + fileName + "]";
 	}
 	
 }

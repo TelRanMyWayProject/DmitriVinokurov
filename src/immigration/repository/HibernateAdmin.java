@@ -29,68 +29,38 @@ public class HibernateAdmin implements ImmigrationRepository {
 	// Step
 	@Transactional(readOnly = false)
 	public int addStep(Step step) {
-		String name = step.getName();
-		if (name != null && name.length() > 0) {
-			Query query = entityManager.createQuery("SELECT step FROM Step step WHERE name = ?1");
-			query.setParameter(1, name);
-			if (query.getResultList().isEmpty()) {
-				try {
-					entityManager.persist(step);
-					entityManager.flush();
-					return step.getId();
-				}
-				catch (Exception e) {
-				}
+		int result = -1;
+		if (step != null) {
+			try {
+				entityManager.persist(step);
+				entityManager.flush();
+				result = step.getId();
+			}
+			catch (Exception e) {
 			}
 		}
-		return -1;
+		return result;
 	}
 
 	@Transactional(readOnly = false)
-	public int addStep(String name, String description) {
-		if (name != null && name.length() > 0) {
-			Query query = entityManager.createQuery("SELECT step FROM Step step WHERE name = ?1");
-			query.setParameter(1, name);
-			if (query.getResultList().isEmpty()) {
-				Step step = new Step(name, description);
-				try {
-					entityManager.persist(step);
+	public boolean editStep(Step step) {
+		boolean result = false;
+		if (step != null) {
+			Step stepOrig = null;
+			try {
+				stepOrig = entityManager.find(Step.class, step.getId());
+				if (stepOrig != null) {
+					stepOrig.setName(step.getName());
+					stepOrig.setDescription(step.getDescription());
+					entityManager.merge(stepOrig);
 					entityManager.flush();
-					return step.getId();
-				}
-				catch (Exception e) {
+					result = true;
 				}
 			}
-		}
-		return -1;
-	}
-
-	@Transactional(readOnly = false)
-	public boolean editStep(int id, String name, String description) {
-		boolean res = false;
-		if (id > 0 && name != null && name.length() > 0) {
-			Step step = entityManager.find(Step.class, id);
-			if (step != null) {
-				Query query = entityManager.createQuery("SELECT step FROM Step step WHERE name = ?1");
-				query.setParameter(1, name);
-				@SuppressWarnings("unchecked")
-				List<Step> queryList = query.getResultList();
-				if (queryList.isEmpty() || queryList.contains(step)) {
-					step.setName(name);
-					step.setDescription(description);
-					try {
-						entityManager.merge(step);
-						entityManager.flush();
-						res = true;
-					}
-					catch (Exception e) {
-					}
-				}
-				else {
-				}
+			catch (Exception e) {
 			}
 		}
-		return res;
+		return result;
 	}
 
 	public Step getStep(int id) {
@@ -105,7 +75,6 @@ public class HibernateAdmin implements ImmigrationRepository {
 		return step;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Iterable<Step> getAllSteps() {
 		try {
 			Query query = entityManager.createQuery("SELECT step FROM Step step");
@@ -117,68 +86,95 @@ public class HibernateAdmin implements ImmigrationRepository {
 	}
 
 
-
-	// ProgramStep
+	// FieldNames
 	@Transactional(readOnly = false)
-	public int addProgramStep(ProgramStep programStep) {
-		Programs program = programStep.getProgram();
-		Step step = programStep.getStep();
-		if (program != null && step != null) {
-			Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 AND id_step = ?2");
-			query.setParameter(1, program.getProgramId());
-			query.setParameter(2, step.getId());
-			if (query.getResultList().isEmpty()) {
-				try {
-					entityManager.persist(programStep);
-					entityManager.flush();
-					return programStep.getId();
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-		return -1;
-	}
-
-	@Transactional(readOnly = false)
-	public int addProgramStep(Programs program, Step step, int stepOrder, String description) {
-		if (program != null && step != null) {
-			Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 AND id_step = ?2");
-			query.setParameter(1, program.getProgramId());
-			query.setParameter(2, step.getId());
-			if (query.getResultList().isEmpty()) {
-				try {
-					ProgramStep programStep = new ProgramStep(program, step);
-					if (stepOrder > 0) {
-						programStep.setStepOrder(stepOrder);
-					}
-					programStep.setDescription(description);
-					entityManager.persist(programStep);
-					entityManager.flush();
-					return programStep.getId();
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-		return -1;
-	}
-
-
-
-	@Transactional(readOnly = false)
-	public int deleteProgramStep(ProgramStep programStep) {
-		if (programStep != null) {
-			int res = programStep.getId();
+	public int addFieldNames(FieldNames fieldNames) {
+		int result = -1;
+		if (fieldNames != null) {
 			try {
-				entityManager.remove(programStep);
+				entityManager.persist(fieldNames);
 				entityManager.flush();
-				return res;
+				result = fieldNames.getId();
 			}
 			catch (Exception e) {
 			}
 		}
-		return -1;
+		return result;
+	}
+
+	@Transactional(readOnly = false)
+	public boolean editFieldNames(FieldNames fieldNames) {
+		boolean result = false;
+		if (fieldNames != null) {
+			FieldNames fieldNamesOrig = null;
+			try {
+				fieldNamesOrig = entityManager.find(FieldNames.class, fieldNames.getId());
+				if (fieldNamesOrig != null) {
+					fieldNamesOrig.setName(fieldNames.getName());
+					fieldNamesOrig.setPossibleValues(fieldNames.getPossibleValues());
+					entityManager.merge(fieldNamesOrig);
+					entityManager.flush();
+					result = true;
+				}
+			}
+			catch (Exception e) {
+			}
+		}
+		return result;
+	}
+
+	public FieldNames getFieldNames(int id) {
+		FieldNames fieldNames = null;
+		if (id > 0) {
+			try {
+				fieldNames = entityManager.find(FieldNames.class, id);
+			}
+			catch (Exception e) {
+			}
+		}
+		return fieldNames;
+	}
+
+	public Iterable<FieldNames> getAllFieldNames() {
+		try {
+			Query query = entityManager.createQuery("SELECT fieldNames FROM FieldNames fieldNames");
+			return query.getResultList();
+		}
+		catch (Exception e) {
+		}
+		return null;
+	}
+
+
+	// ProgramStep
+	@Transactional(readOnly = false)
+	public int addProgramStep(ProgramStep programStep) {
+		int result = -1;
+		if (programStep != null) {
+			try {
+				entityManager.persist(programStep);
+				entityManager.flush();
+				result = programStep.getId();
+			}
+			catch (Exception e) {
+			}
+		}
+		return result;
+	}
+
+	@Transactional(readOnly = false)
+	public int deleteProgramStep(ProgramStep programStep) {
+		int result = -1;
+		if (programStep != null) {
+			try {
+				result = programStep.getId();
+				entityManager.remove(programStep);
+				entityManager.flush();
+			}
+			catch (Exception e) {
+			}
+		}
+		return result;
 	}
 
 	@Transactional(readOnly = false)
@@ -194,21 +190,8 @@ public class HibernateAdmin implements ImmigrationRepository {
 						result++;
 				}
 			}
-
 		}
 		return result;
-	}
-
-	public ProgramStep getProgramStep(int id) {
-		ProgramStep programStep = null;
-		if (id > 0) {
-			try {
-				programStep = entityManager.find(ProgramStep.class, id);
-			}
-			catch (Exception e) {
-			}
-		}
-		return programStep;
 	}
 
 	public Iterable<ProgramStep> getAllProgramStepsInProgram(Programs program) {
@@ -216,7 +199,6 @@ public class HibernateAdmin implements ImmigrationRepository {
 			try {
 				Query query = entityManager.createQuery("SELECT programStep FROM ProgramStep programStep WHERE id_program = ?1 order by stepOrder");
 				query.setParameter(1, program.getProgramId());
-				@SuppressWarnings("unchecked")
 				List<ProgramStep> resList = query.getResultList();
 				return resList;
 			}
@@ -226,156 +208,23 @@ public class HibernateAdmin implements ImmigrationRepository {
 		return null;
 	}
 
-	// FieldNames
-	@Transactional(readOnly = false)
-	public int addFieldNames(FieldNames fieldNames) {
-		String name = fieldNames.getName();
-		if (name != null && name.length() > 0) {
-			Query query = entityManager.createQuery("SELECT fieldNames FROM FieldNames fieldNames WHERE name = ?1");
-			query.setParameter(1, name);
-			if (query.getResultList().isEmpty()) {
-				try {
-					entityManager.persist(fieldNames);
-					entityManager.flush();
-					return fieldNames.getId();
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-		return -1;
-	}
-
-	@Transactional(readOnly = false)
-	public int addFieldNames(String name, String possibleValues) {
-		if (name != null && name.length() > 0) {
-			Query query = entityManager.createQuery("SELECT fieldNames FROM FieldNames fieldNames WHERE name = ?1");
-			query.setParameter(1, name);
-			if (query.getResultList().isEmpty()) {
-				FieldNames fieldNames = new FieldNames(name, "");
-				if (possibleValues != null) {
-					fieldNames.setPossibleValues(possibleValues);
-				}
-				try {
-					entityManager.persist(fieldNames);
-					entityManager.flush();
-					return fieldNames.getId();
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-		return -1;
-	}
-
-	@Transactional(readOnly = false)
-	public boolean editFieldNames(int id, String name, String possibleValues) {
-		boolean res = false;
-		if (name != null && name.length() > 0) {
-			FieldNames fieldNames = entityManager.find(FieldNames.class, id);
-			if (fieldNames != null) {
-				if (name != null && name.length() > 0) {
-					Query query = entityManager.createQuery("SELECT fieldNames FROM FieldNames fieldNames WHERE name = ?1");
-					query.setParameter(1, name);
-					@SuppressWarnings("unchecked")
-					List<FieldNames> queryList = query.getResultList();
-					if (queryList.isEmpty() || queryList.contains(fieldNames)) {
-						fieldNames.setName(name);
-						fieldNames.setPossibleValues(possibleValues);
-						try {
-							entityManager.merge(fieldNames);
-							entityManager.flush();
-							res = true;
-						}
-						catch (Exception e) {
-						}
-					}
-					else {
-					}
-				}
-			}
-		}
-		return res;
-	}
-
-	public FieldNames getFieldNames(int id) {
-		FieldNames fieldNames = null;
-		if (id > 0) {
-			try {
-				fieldNames = entityManager.find(FieldNames.class, id);
-			}
-			catch (Exception e) {
-			}
-		}
-		return fieldNames;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Iterable<FieldNames> getAllFieldNames() {
-		try {
-			Query query = entityManager.createQuery("SELECT fieldNames FROM FieldNames fieldNames");
-			return query.getResultList();
-		}
-		catch (Exception e) {
-		}
-		return null;
-	}
 
 	// ProgramCustomData
 	@Transactional(readOnly = false)
 	public int addProgramCustomData(ProgramCustomData programCustomData) {
-		Programs program = programCustomData.getProgram();
-		FieldNames fieldNames = programCustomData.getFieldNames();
-		if (program != null && fieldNames != null) {
-			Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE id_program = ?1 AND id_fieldnames = ?2");
-			query.setParameter(1, program.getProgramId());
-			query.setParameter(2, fieldNames.getId());
-			if (query.getResultList().isEmpty()) {
-				try {
-					entityManager.persist(programCustomData);
-					entityManager.flush();
-					return programCustomData.getId();
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-		return -1;
-	}
-
-	@Transactional(readOnly = false)
-	public int addProgramCustomData(Programs program, FieldNames fieldNames, String value) {
-		if (value != null && value != "" && program != null && fieldNames != null) {
-			Query query = entityManager.createQuery("SELECT programCustomData FROM ProgramCustomData programCustomData WHERE id_program = ?1 AND id_fieldnames = ?2");
-			query.setParameter(1, program.getProgramId());
-			query.setParameter(2, fieldNames.getId());
-			if (query.getResultList().isEmpty()) {
-				try {
-					ProgramCustomData programCustomData = new ProgramCustomData(program, fieldNames, value);
-					entityManager.persist(programCustomData);
-					entityManager.flush();
-					return programCustomData.getId();
-				}
-				catch (Exception e) {
-				}
-			}
-		}
-		return -1;
-	}
-
-	public ProgramCustomData getProgramCustomData(int id) {
-		ProgramCustomData programCustomData = null;
-		if (id > 0) {
+		int result = -1;
+		if (programCustomData != null) {
 			try {
-				programCustomData = entityManager.find(ProgramCustomData.class, id);
+				entityManager.persist(programCustomData);
+				entityManager.flush();
+				result = programCustomData.getId();
 			}
 			catch (Exception e) {
 			}
 		}
-		return programCustomData;
+		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Iterable<ProgramCustomData> getAllProgramCustomDataInProgram(Programs program) {
 		if (program != null) {
 			try {
@@ -391,16 +240,17 @@ public class HibernateAdmin implements ImmigrationRepository {
 
 	@Transactional(readOnly = false)
 	public int deleteProgramCustomData(ProgramCustomData programCustomData) {
+		int result = -1;
 		if (programCustomData != null) {
 			try {
+				result = programCustomData.getId();
 				entityManager.remove(programCustomData);
 				entityManager.flush();
-				return programCustomData.getId();
 			}
 			catch (Exception e) {
 			}
 		}
-		return -1;
+		return result;
 	}
 
 	@Transactional(readOnly = false)
@@ -419,6 +269,7 @@ public class HibernateAdmin implements ImmigrationRepository {
 		}
 		return result;
 	}
+
 	@SuppressWarnings("unchecked")
 	public Iterable <Country> getAllCountry(){
 		return entityManager.createQuery("SELECT country FROM Country country").getResultList();

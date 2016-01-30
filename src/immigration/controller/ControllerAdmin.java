@@ -2,18 +2,36 @@ package immigration.controller;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.*;
-import javax.servlet.http.*;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import com.google.gson.*;
-import com.google.gson.reflect.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import immigration.dao.*;
-import immigration.interfaces.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import immigration.dao.Country;
+import immigration.dao.Embassy;
+import immigration.dao.FieldNames;
+import immigration.dao.ProgramCustomData;
+import immigration.dao.ProgramStep;
+import immigration.dao.Programs;
+import immigration.dao.Step;
+import immigration.interfaces.ImmigrationRepository;
 
 
 
@@ -73,22 +91,23 @@ public class ControllerAdmin {
 		if (iterator.hasNext() == true) {
 			resJson = new Gson().toJson(res);
 		}
-		else {
-			// Steps List is empty !!!
-		}
 		model.addAttribute(RESULT, resJson);
 		return "Steps";
 	}
 
 	@RequestMapping(value = ImmigrationRepository.STEP_ADD, method = RequestMethod.POST)
-	// @ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public void addStepController(HttpServletRequest request, HttpServletResponse response) {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		int id = -1;
-		Step step = new Gson().fromJson(str2, Step.class);
-		if (step != null && step.getName().length() > 0)
-			id = hibernateWeb.addStep(step.getName(), step.getDescription());
+		Step step = null;
+		try {
+			step = new Gson().fromJson(str2, Step.class);
+			id = hibernateWeb.addStep(step);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 		String resJson = "[]";
 		if (id != -1)
 			resJson = new Gson().toJson(hibernateWeb.getStep(id));
@@ -97,7 +116,7 @@ public class ControllerAdmin {
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -106,22 +125,27 @@ public class ControllerAdmin {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		boolean res = false;
-		Step step = new Gson().fromJson(str2, Step.class);
-		String name = step.getName();
-		String description = step.getDescription();
-		if (name != null && name != "")
-			res = hibernateWeb.editStep(step.getId(), name, description);
+		Step step = null;
+		try {
+			step = new Gson().fromJson(str2, Step.class);
+			res = hibernateWeb.editStep(step);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 		String resJson = "";
 		if (res == true)
 			resJson = new Gson().toJson(step);
-		else
-			resJson = new Gson().toJson(hibernateWeb.getStep(step.getId()));
+		else {
+			if (step != null)
+				resJson = new Gson().toJson(hibernateWeb.getStep(step.getId()));
+		}
 		try {
 			response.getWriter().write(resJson);
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -135,22 +159,23 @@ public class ControllerAdmin {
 		if (iterator.hasNext() == true) {
 			resJson = new Gson().toJson(res);
 		}
-		else {
-			// FieldNames List is empty !!!
-		}
 		model.addAttribute(RESULT, resJson);
 		return "FieldNames";
 	}
 
 	@RequestMapping(value = ImmigrationRepository.FIELDNAMES_ADD, method = RequestMethod.POST)
-	// @ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public void addFieldNamesController(HttpServletRequest request, HttpServletResponse response) {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		int id = -1;
-		FieldNames fieldNames = new Gson().fromJson(str2, FieldNames.class);
-		if (fieldNames != null && fieldNames.getName() != "")
+		FieldNames fieldNames = null;
+		try {
+			fieldNames = new Gson().fromJson(str2, FieldNames.class);
 			id = hibernateWeb.addFieldNames(fieldNames);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 		String resJson = "[]";
 		if (id != -1)
 			resJson = new Gson().toJson(hibernateWeb.getFieldNames(id));
@@ -159,7 +184,7 @@ public class ControllerAdmin {
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -168,29 +193,35 @@ public class ControllerAdmin {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		boolean res = false;
-		FieldNames fieldNames = new Gson().fromJson(str2, FieldNames.class);
-		String name = fieldNames.getName();
-		if (name != null && name != "")
-			res = hibernateWeb.editFieldNames(fieldNames.getId(), name, fieldNames.getPossibleValues());
+		FieldNames fieldNames = null;
+		try {
+			fieldNames = new Gson().fromJson(str2, FieldNames.class);
+			res = hibernateWeb.editFieldNames(fieldNames);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 		String resJson = "";
 		if (res == true)
 			resJson = new Gson().toJson(fieldNames);
-		else
-			resJson = new Gson().toJson(hibernateWeb.getFieldNames(fieldNames.getId()));
+		else {
+			if (fieldNames != null)
+				resJson = new Gson().toJson(hibernateWeb.getFieldNames(fieldNames.getId()));
+		}
 		try {
 			response.getWriter().write(resJson);
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
 
-	// ProgSteps.JSP for Dima
+	// ProgSteps.JSP
 	@RequestMapping(value = ImmigrationRepository.PROG_STEPS, method = RequestMethod.GET)
-	String getAllProgramStepsInProgramControllerDima(int programId, Model model) {
-		Programs program = hibernateWeb.getProgramById(programId);
+	String getAllProgramStepsInProgramControllerDima(int id, Model model) {
+		Programs program = hibernateWeb.getProgramById(id);
 		if (program != null) {
 			Gson gson = createMyGsonWithDateFormat();
 			String resJson1 = "{\"program\":" + gson.toJson(program) + ",";
@@ -214,20 +245,24 @@ public class ControllerAdmin {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		Gson gson = createMyGsonWithDateFormat();
-		Programs program = gson.fromJson(str2, Programs.class);
+		Programs program = null;
 		String resJson = "[]";
-		if (program != null) {
+		try {
+			program = gson.fromJson(str2, Programs.class);
 			Iterable<ProgramStep> res = hibernateWeb.getAllProgramStepsInProgram(program);
 			Iterator<ProgramStep> iterator = res.iterator();
 			if (iterator.hasNext() == true)
 				resJson = gson.toJson(res);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
 		}
 		try {
 			response.getWriter().write(resJson);
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -253,15 +288,20 @@ public class ControllerAdmin {
 		String str2 = str1.substring(1, str1.length() - 1);
 		Gson gson = createMyGsonWithDateFormat();
 		Type datasetListType = new TypeToken<Collection<ProgramStep>>() {}.getType();
-		List<ProgramStep> programSteps = gson.fromJson(str2, datasetListType);
-		for (ProgramStep programStep : programSteps) {
-			Programs program = programStep.getProgram();
-			hibernateWeb.deleteAllProgramStepsInProgram(program);
-			break;
+		try {
+			List<ProgramStep> programSteps = gson.fromJson(str2, datasetListType);
+			for (ProgramStep programStep : programSteps) {
+				Programs program = programStep.getProgram();
+				hibernateWeb.deleteAllProgramStepsInProgram(program);
+				break;
+			}
+			for (ProgramStep programStep : programSteps) {
+				// programStep.setId(0);
+				hibernateWeb.addProgramStep(programStep);
+			}
 		}
-		for (ProgramStep programStep : programSteps) {
-			programStep.setId(0);
-			hibernateWeb.addProgramStep(programStep);
+		catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
@@ -270,18 +310,21 @@ public class ControllerAdmin {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		Gson gson = createMyGsonWithDateFormat();
-		Programs program = gson.fromJson(str2, Programs.class);
-		if (program != null) {
+		Programs program = null;
+		try {
+			program = gson.fromJson(str2, Programs.class);
 			hibernateWeb.deleteAllProgramStepsInProgram(program);
 		}
-
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 
-	// ProgCustomData.JSP for Dima
+	// ProgCustomData.JSP
 	@RequestMapping(value = ImmigrationRepository.PROG_CUSTDATA, method = RequestMethod.GET)
-	String getAllProgramCustomDataInProgramControllerDima(int programId, Model model) {
-		Programs program = hibernateWeb.getProgramById(programId);
+	String getAllProgramCustomDataInProgramControllerDima(int id, Model model) {
+		Programs program = hibernateWeb.getProgramById(id);
 		if (program != null) {
 			Gson gson = createMyGsonWithDateFormat();
 			String resJson1 = "{\"program\":" + gson.toJson(program) + ",";
@@ -312,7 +355,7 @@ public class ControllerAdmin {
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -321,20 +364,24 @@ public class ControllerAdmin {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		Gson gson = createMyGsonWithDateFormat();
-		Programs program = gson.fromJson(str2, Programs.class);
+		Programs program = null;
 		String resJson = "[]";
-		if (program != null) {
+		try {
+			program = gson.fromJson(str2, Programs.class);
 			Iterable<ProgramCustomData> res = hibernateWeb.getAllProgramCustomDataInProgram(program);
 			Iterator<ProgramCustomData> iterator = res.iterator();
 			if (iterator.hasNext() == true)
 				resJson = gson.toJson(res);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
 		}
 		try {
 			response.getWriter().write(resJson);
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -344,15 +391,20 @@ public class ControllerAdmin {
 		String str2 = str1.substring(1, str1.length() - 1);
 		Gson gson = createMyGsonWithDateFormat();
 		Type datasetListType = new TypeToken<Collection<ProgramCustomData>>() {}.getType();
-		List<ProgramCustomData> programCustomDatas = gson.fromJson(str2, datasetListType);
-		for (ProgramCustomData programCustomData : programCustomDatas) {
-			Programs program = programCustomData.getProgram();
-			hibernateWeb.deleteAllProgramCustomDataInProgram(program);
-			break;
+		try {
+			List<ProgramCustomData> programCustomDatas = gson.fromJson(str2, datasetListType);
+			for (ProgramCustomData programCustomData : programCustomDatas) {
+				Programs program = programCustomData.getProgram();
+				hibernateWeb.deleteAllProgramCustomDataInProgram(program);
+				break;
+			}
+			for (ProgramCustomData programCustomData : programCustomDatas) {
+				// programCustomData.setId(0);
+				hibernateWeb.addProgramCustomData(programCustomData);
+			}
 		}
-		for (ProgramCustomData programCustomData : programCustomDatas) {
-			programCustomData.setId(0);
-			hibernateWeb.addProgramCustomData(programCustomData);
+		catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
@@ -361,12 +413,17 @@ public class ControllerAdmin {
 		String str1 = request.getParameterMap().keySet().toString();
 		String str2 = str1.substring(1, str1.length() - 1);
 		Gson gson = createMyGsonWithDateFormat();
-		Programs program = gson.fromJson(str2, Programs.class);
-		if (program != null) {
+		Programs program = null;
+		try {
+			program = gson.fromJson(str2, Programs.class);
 			hibernateWeb.deleteAllProgramCustomDataInProgram(program);
 		}
-
+		catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
+
+
 	//From Comtr#2
 
 	@RequestMapping
