@@ -220,8 +220,9 @@ public class ControllerAdmin {
 
 	// ProgSteps.JSP
 	@RequestMapping(value = ImmigrationRepository.PROG_STEPS, method = RequestMethod.GET)
-	String getAllProgramStepsInProgramControllerDima(int id, Model model) {
-		Programs program = hibernateWeb.getProgramById(id);
+	String getAllProgramStepsInProgramControllerDima(int programId, Model model) {
+		System.out.println(programId);
+		Programs program = hibernateWeb.getProgramById(programId);
 		if (program != null) {
 			Gson gson = createMyGsonWithDateFormat();
 			String resJson1 = "{\"program\":" + gson.toJson(program) + ",";
